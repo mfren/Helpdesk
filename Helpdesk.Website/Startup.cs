@@ -1,3 +1,4 @@
+using Helpdesk.Website.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -21,7 +22,10 @@ namespace Helpdesk.Website
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-
+            
+            // Configure Firebase Authentication
+            FirebaseAuthService.Configure();
+            
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
         }
