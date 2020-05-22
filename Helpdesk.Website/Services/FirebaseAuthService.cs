@@ -13,8 +13,19 @@ namespace Helpdesk.Website.Services
         
         public static void Configure()
         {
-            UserAuth = SetupAuth("../FirebaseServiceAccounts/helpdesk-users-firebase-adminsdk-7j3w5-df4c9ec95c.json");
-            AdminAuth = SetupAuth("../FirebaseServiceAccounts/helpdesk-admins-firebase-adminsdk-scgf7-a966a25648.json");
+            // Setup User Authentication
+            var userApp = FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile("FirebaseServiceAccounts/helpdesk-users-firebase-adminsdk-7j3w5-df4c9ec95c.json")
+            });
+            UserAuth = FirebaseAuth.GetAuth(userApp);
+            
+            // Setup Admin Authentication
+            var adminApp = FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile("FirebaseServiceAccounts/helpdesk-admins-firebase-adminsdk-scgf7-a966a25648.json")
+            }, "admin");
+            AdminAuth = FirebaseAuth.GetAuth(adminApp);
         }
 
         private static FirebaseAuth SetupAuth(string tokenFile)
