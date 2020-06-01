@@ -4,7 +4,7 @@ const ManagerContext = React.createContext(null);
 
 export const withManager = Component => props => (
     <ManagerContext.Consumer>
-        {firebase => <Component {...props} firebase={firebase} />}
+        {manager => <Component {...props} manager={manager} />}
     </ManagerContext.Consumer>
 );
 
