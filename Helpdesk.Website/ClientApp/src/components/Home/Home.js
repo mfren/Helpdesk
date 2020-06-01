@@ -1,7 +1,7 @@
 import React from 'react';
-import {withManager} from "../Manager";
+import {SignIn} from "../SignIn/SignIn";
 
-function HomeBase(props) {
+export function Home(props) {
     
     return (
         <div>
@@ -9,5 +9,3 @@ function HomeBase(props) {
         </div>
     )
 }
-
-export const Home = withManager(HomeBase);
