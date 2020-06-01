@@ -37,6 +37,11 @@ class Manager {
     createUser  = (email, password) => this._doCreateUser(this.userAuth, email, password);
     createAdmin = (email, password) => this._doCreateUser(this.adminAuth, email, password);
     
+    // Sign In
+    _doSignIn = (authSys, email, password) => authSys.signInWithEmailAndPassword(email, password);
+    signUserIn  = (email, password) => this._doSignIn(this.userAuth, email, password);
+    signAdminIn = (email, password) => this._doSignIn(this.adminAuth, email, password);
+    
     // Sign Out
     _doSignOut = (authSys) => authSys.signOut();
     signUserOut  = () => this._doSignOut(this.userAuth);
