@@ -57,6 +57,11 @@ class Manager {
     // userUpdate  = (password) => this._doPasswordUpdate(this.userAuth,  password);
     // adminUpdate = (password) => this._doPasswordUpdate(this.adminAuth, password);
     
+    // Signed In checks
+    _doSignInCheck = (authSys) => { return authSys.currentUser };
+    currentUser  = () => this._doSignInCheck(this.userAuth);
+    currentAdmin = () => this._doSignInCheck(this.adminAuth);
+
     //// Requests ////
     request = {
         
