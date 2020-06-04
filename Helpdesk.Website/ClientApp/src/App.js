@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Route } from 'react-router';
-import { Layout } from './components/Layout';
-import Home from './components/Home';
-import './custom.css'
 import Manager, {ManagerContext} from "./components/Manager";
+import * as ROUTES from "./constants/routes";
+import {MaterialSignIn} from "./components/MaterialSignIn/MaterialSignIn";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+import Home from "./components/Home";
 
 
 export default class App extends Component {
@@ -12,9 +12,19 @@ export default class App extends Component {
     render () {
         return (
             <ManagerContext.Provider value={new Manager()}>
-                <Layout>
-                    <Route exact path='/' component={Home} />
-                </Layout>
+                <Router>
+                    <Switch>
+                        <Route path={ROUTES.userSignIn}>
+                            <MaterialSignIn admin={false}/>
+                        </Route>
+                        <Route path={ROUTES.adminSignIn}>
+                            <MaterialSignIn admin={true}/>
+                        </Route>
+                        <Route path="" exact={true}>
+                            <Home/>
+                        </Route>
+                    </Switch>
+                </Router>
             </ManagerContext.Provider>
         );
     }
