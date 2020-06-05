@@ -29,8 +29,6 @@ function SignInBase(props) {
                     .then(() => setErrored("Admin Logged In"))
                     .catch(subError => {
                         setErrored("Login Error");
-                        console.error(subError)
-                        console.error(error)
                     })
             })
         

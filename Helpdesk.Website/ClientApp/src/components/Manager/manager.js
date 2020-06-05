@@ -30,6 +30,10 @@ class Manager {
         
         this.userAuth = firebase.auth();        // User Auth
         this.adminAuth = adminFirebase.auth();  // Admin Auth
+        
+        // Turn off Authentication Persistence
+        this.userAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        this.adminAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
     }
     
     // Create User

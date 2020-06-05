@@ -1,8 +1,12 @@
 import React from 'react';
+import SignIn from "../SignIn";
 
 export function Home(props) {
     
     return (
-        <h1>Hello World!</h1>
+        <div>
+            <h1>Hello World!</h1>
+            <SignIn/>
+        </div>
     )
 }

@@ -1,3 +1,14 @@
+﻿# Created by .ignore support plugin (hsz.mobi)
+.idea/.idea.Helpdesk/.idea/.gitignore
+.idea/.idea.Helpdesk/.idea/encodings.xml
+.idea/.idea.Helpdesk/.idea/indexLayout.xml
+.idea/.idea.Helpdesk/.idea/inspectionProfiles/
+.idea/.idea.Helpdesk/.idea/misc.xml
+.idea/.idea.Helpdesk/.idea/vcs.xml
+.idea/.idea.Helpdesk/riderModule.iml
+Helpdesk.Website/ClientApp/.env
+Helpdesk.Website/FirebaseServiceAccounts/
+global.json
 bin/
 obj/
 /packages/
