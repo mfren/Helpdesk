@@ -1,5 +1,3 @@
-//eslint-disable jsx-a11y/alt-text
-
 import React from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -55,8 +53,8 @@ function MaterialSignInBase(props) {
     const classes = useStyles();    // Use predefined CSS classes
 
     // Component states
-    const [user, setUser] = React.useState("");
-    const [pass, setPass] = React.useState("");
+    const [user, setUser] = React.useState(""); // eslint-disable-line
+    const [pass, setPass] = React.useState(""); // eslint-disable-line
     
     
     const handleSubmit = event => {
