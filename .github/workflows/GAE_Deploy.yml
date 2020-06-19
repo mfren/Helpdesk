@@ -23,7 +23,10 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         export_default_credentials: true
-      
+    
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v1.4.2
+    
     - name: Inject React Env File
       env:
         ENV_FILE: ${{ secrets.REACT_ENV_FILE }}
