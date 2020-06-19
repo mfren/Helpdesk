@@ -28,16 +28,13 @@ jobs:
       env:
         ENV_FILE: ${{ secrets.REACT_ENV_FILE }}
       run: |
-        dir
         cd ./Helpdesk.Website/ClientApp
-        dir
         echo $ENV_FILE > .env
+        dir
 
     - name: Make Firebase Directory
       run: |
-        dir
-        cd ..
-        dir
+        cd ./Helpdesk.Website
         mkdir FirebaseServiceAccounts
         cd FirebaseServiceAccounts
         dir
@@ -47,6 +44,7 @@ jobs:
         FB_ADMIN_FILE: ${{ secrets.FB_ADMIN_FILE }}
         FB_ADMIN_CONT: ${{ secrets.FB_ADMIN_CONT }}
       run: | 
+        cd ./Helpdesk.Website/FirebaseServiceAccounts
         echo $FB_ADMIN_CONT > $FB_ADMIN_FILE
         dir
       
@@ -55,14 +53,12 @@ jobs:
         FB_USER_FILE: ${{ secrets.FB_USER_FILE }}
         FB_USER_CONT: ${{ secrets.FB_USER_CONT }}
       run: |
+        cd ./Helpdesk.Website/FirebaseServiceAccounts
         echo $FB_USER_FILE > $FB_USER_CONT
         dir
 
     - name: Compile Code 
       run: |
-        dir
-        cd ..
-        dir
         dotnet publish -c Release
     
     - name: Deploy
