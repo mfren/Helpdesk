@@ -51,6 +51,7 @@ jobs:
     - name: Compile Code 
       run: |
         cd ..\..
+        dir
         dotnet publish -c Release
     
     - name: Deploy
