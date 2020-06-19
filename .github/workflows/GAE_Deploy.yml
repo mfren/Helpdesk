@@ -1,0 +1,70 @@
+# Copyright Matthew French 2020
+# CD Script to inject runtime secrets and deploy to GAE
+
+name: GAE Release Deployment
+
+# Code should run when there is a release created
+# This should apply to all branches not just master
+on:
+  release:
+    types: [ published ] 
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '290.0.1'
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+    
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v1.4.2
+    
+    - name: Inject React Env File
+      env:
+        ENV_FILE: ${{ secrets.REACT_ENV_FILE }}
+      run: |
+        cd ./Helpdesk.Website/ClientApp
+        echo $ENV_FILE > .env
+        dir
+
+    - name: Make Firebase Directory
+      run: |
+        cd ./Helpdesk.Website
+        mkdir FirebaseServiceAccounts
+        cd FirebaseServiceAccounts
+        dir
+    
+    - name: Inject Firebase Admin Keys
+      env:
+        FB_ADMIN_FILE: ${{ secrets.FB_ADMIN_FILE }}
+        FB_ADMIN_CONT: ${{ secrets.FB_ADMIN_CONT }}
+      run: | 
+        cd ./Helpdesk.Website/FirebaseServiceAccounts
+        echo $FB_ADMIN_CONT > $FB_ADMIN_FILE
+        dir
+      
+    - name: Inject Firebase User Keys
+      env:
+        FB_USER_FILE: ${{ secrets.FB_USER_FILE }}
+        FB_USER_CONT: ${{ secrets.FB_USER_CONT }}
+      run: |
+        cd ./Helpdesk.Website/FirebaseServiceAccounts
+        echo $FB_USER_FILE > $FB_USER_CONT
+        dir
+
+    - name: Compile Code 
+      run: |
+        dotnet publish -c Release
+    
+    - name: Deploy
+      run: |
+        cd Helpdesk.Website\bin\Release\netcoreapp2.2\publish
+        gcloud app deploy -no-promote
