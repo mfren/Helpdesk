@@ -67,4 +67,4 @@ jobs:
     - name: Deploy
       run: |
         cd Helpdesk.Website\bin\Release\netcoreapp2.2\publish
-        gcloud app deploy -no-promote
+        gcloud app deploy --no-promote
