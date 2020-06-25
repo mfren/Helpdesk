@@ -11,6 +11,8 @@ function SignInBase(props) {
     const [pass, setPass] = React.useState("");
     const [errored, setErrored] = React.useState("")
 
+    let auth = !!(props.users.currentUser || props.users.currentAdmin);
+    
     // Changes state
     const handle = (setFunc, event) => {
         setFunc(event.target.value);
@@ -53,7 +55,7 @@ function SignInBase(props) {
             </form>
             <h2>{errored}</h2>
             
-            {(manager.currentUser() || manager.currentAdmin()) ? (
+            {(auth) ? (
                 <h3>Welcome</h3>
             ) : (
                 <h3>You are not logged in!</h3>

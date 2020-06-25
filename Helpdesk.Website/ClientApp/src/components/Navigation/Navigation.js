@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import {withRouter} from "react-router";
+import {withRouter} from "react-router-dom";
 
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -10,6 +10,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
+import {withManager} from "../Manager";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -28,7 +29,7 @@ function NavigationBase(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     
-    let auth = props.manager.currentUser || props.manager.currentAdmin
+    let auth = !!(props.users.currentUser || props.users.currentAdmin);
     
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -85,4 +86,4 @@ function NavigationBase(props) {
     );
 }
 
-export const Navigation = withRouter(NavigationBase)
+export const Navigation = withRouter(withManager(NavigationBase));
