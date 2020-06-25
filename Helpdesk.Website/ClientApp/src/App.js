@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Manager, {ManagerContext} from "./components/Manager";
 import * as ROUTES from "./constants/routes";
 import {MaterialSignIn} from "./components/MaterialSignIn/MaterialSignIn";
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+import {Route, Switch} from "react-router-dom";
 import Home from "./components/Home";
 import {Navigation} from "./components/Navigation/Navigation";
 
