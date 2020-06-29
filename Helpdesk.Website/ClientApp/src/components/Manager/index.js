@@ -1,4 +1,5 @@
-import ManagerContext , { withManager } from './context';
+import ManagerContext from './context';
+import withManager from "./withManager";
 import Manager from './manager';
 
 export default Manager;
