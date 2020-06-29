@@ -1,12 +1,16 @@
 import React from 'react';
 import SignIn from "../SignIn";
+import {PageLimit} from "../Layouts/PageLimit/PageLimit";
+import {withAuthUser} from "../Manager/withAuth";
 
-export function Home(props) {
+function HomeBase(props) {
     
     return (
-        <div>
+        <PageLimit>
             <h1>Hello World!</h1>
             <SignIn/>
-        </div>
+        </PageLimit>
     )
 }
+
+export const Home = withAuthUser(HomeBase);
