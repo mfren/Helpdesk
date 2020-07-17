@@ -10,57 +10,64 @@ const userConfig = {
     messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID_USER,
     appId: process.env.REACT_APP_APP_ID_USER,
 };
-const adminConfig = {
-    apiKey: process.env.REACT_APP_API_KEY_ADMIN,
-    authDomain: process.env.REACT_APP_AUTH_DOMAIN_ADMIN,
-    databaseURL: process.env.REACT_APP_DATABASE_URL_ADMIN,
-    projectId: process.env.REACT_APP_PROJECT_ID_ADMIN,
-    storageBucket: process.env.REACT_APP_STORAGE_BUCKET_ADMIN,
-    messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID_ADMIN,
-    appId: process.env.REACT_APP_APP_ID_ADMIN,
-};
 
 class Manager {
     constructor(props) {
         this.props = props;
 
         //// Init Firebase ////
-        firebase.initializeApp(userConfig);                                          // User Firebase
-        const adminFirebase = firebase.initializeApp(adminConfig, "admin");    // Admin Firebase
-        
-        this.userAuth = firebase.auth();        // User Auth
-        this.adminAuth = adminFirebase.auth();  // Admin Auth
+        firebase.initializeApp(userConfig);
+        this.auth = firebase.auth();
+        this.db = firebase.database();
         
         // Turn off Authentication Persistence
-        this.userAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
-        this.adminAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        this.auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
     }
     
     // Create User
-    _doCreateUser = (authSys, email, password) => authSys.createUserWithEmailAndPassword(email, password);
-    createUser  = (email, password) => this._doCreateUser(this.userAuth, email, password);
-    createAdmin = (email, password) => this._doCreateUser(this.adminAuth, email, password);
+    createUser = (email, password) => this.auth.createUserWithEmailAndPassword(email, password);
     
     // Sign In
-    _doSignIn = (authSys, email, password) => authSys.signInWithEmailAndPassword(email, password);
-    signUserIn  = (email, password) => this._doSignIn(this.userAuth, email, password);
-    signAdminIn = (email, password) => this._doSignIn(this.adminAuth, email, password);
+    signIn = (email, password) => this.auth.signInWithEmailAndPassword(email, password);
     
     // Sign Out
-    _doSignOut = (authSys) => authSys.signOut();
-    signUserOut  = () => this._doSignOut(this.userAuth);
-    signAdminOut = () => this._doSignOut(this.adminAuth);
+    signOut = () => this.auth.signOut();
 
     // Password Email Reset
-    _doPasswordReset = (authSys, email) => authSys.sendPasswordResetEmail(email);
-    userReset  = (email) => this._doPasswordReset(this.userAuth,  email);
-    adminReset = (email) => this._doPasswordReset(this.adminAuth, email);
+    passwordReset = (email) => this.auth.sendPasswordResetEmail(email);
     
-    // Password Update (Disabled for Security Reasons)
-    // _doPasswordUpdate = (authSys, password) => authSys.updatePassword(password);
-    // userUpdate  = (password) => this._doPasswordUpdate(this.userAuth,  password);
-    // adminUpdate = (password) => this._doPasswordUpdate(this.adminAuth, password);
+    onAuthUserListener = (next, fallback) =>
+        this.auth.onAuthStateChanged(authUser => {
+            if (authUser) {
+                this.user(authUser.uid)
+                    .once('value')
+                    .then(snapshot => {
+                        const dbUser = snapshot.val();
 
+                        // default empty roles
+                        if (!dbUser.roles) {
+                            dbUser.roles = [];
+                        }
+
+                        // merge auth and db user
+                        authUser = {
+                            uid: authUser.uid,
+                            email: authUser.email,
+                            ...dbUser,
+                        };
+
+                        next(authUser);
+                    });
+            } else {
+                fallback();
+            }
+        });
+
+    user = uid => this.db.ref(`users/${uid}`);
+    users = () => this.db.ref('users');
+    
+    
+    // TODO Update
     //// Requests ////
     request = {
         

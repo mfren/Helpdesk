@@ -1,12 +1,14 @@
 import React from 'react';
-import SignIn from "../SignIn";
+import PageLimit from "../Layouts/PageLimit";
+import {withAuth} from "../Manager/withAuth";
+import * as CONDITIONS from '../../constants/authConditions.js';
 
-export function Home(props) {
-    
+function HomeBase(props) {
     return (
-        <div>
+        <PageLimit>
             <h1>Hello World!</h1>
-            <SignIn/>
-        </div>
+        </PageLimit>
     )
 }
+
+export const Home = withAuth(CONDITIONS.withAnyUser)(HomeBase);
