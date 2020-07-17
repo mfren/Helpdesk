@@ -3,5 +3,6 @@ export const formPost = 'api/form'
 
 
 // React Router
-export const userSignIn = "/signin/user";
-export const adminSignIn = "/signin/admin";
+export const HOME = ''
+export const SIGN_IN = "/signin";
+export const SIGN_UP = "/signup";

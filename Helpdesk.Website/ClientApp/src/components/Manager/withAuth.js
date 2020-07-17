@@ -1,30 +1,41 @@
 ﻿import React from "react";
-import * as ROUTES from '../../constants/routes'
-import withManager from "./withManager";
 import {withRouter} from "react-router-dom";
+import withManager from "./withManager";
+import * as ROUTES from '../../constants/routes'
 
-const withAuthBase = (adminNeeded, Component) => {
+export const withAuth = condition => Component => {
     class WithAuth extends React.Component {
-        componentDidMount() {
-            if (adminNeeded) {
-                if (!this.props.users.currentAdmin) {
-                    this.props.history.push(ROUTES.adminSignIn)
-                }
-            } else {
-                if (!(this.props.users.currentUser || this.props.users.currentAdmin)) {
-                    this.props.history.push(ROUTES.userSignIn)
-                }
-            }
+        constructor(props) {
+            super(props);
+            
+            this.state = {clear: false};
         }
         
+        componentDidMount() {
+            this.listener = this.props.manager.onAuthUserListener(
+                authUser => {
+                    if (!condition(authUser)) {
+                        this.props.history.push(ROUTES.SIGN_IN)
+                    }
+                },
+                () => this.props.history.push(ROUTES.SIGN_IN)
+            );
+        }
+        
+        componentWillUnmount() {
+            this.listener();
+        }
+
         render() {
             return (
-                <Component {...this.props}/>
+                <div>
+                    {this.state.clear ? 
+                        <Component {...this.props}/> :
+                        <div/>    
+                    }
+                </div>
             )
         }
     }
     return withRouter(withManager(WithAuth))
 }
-
-export const withAuthAdmin = (component) => withAuthBase(true, component);
-export const withAuthUser = (component) => withAuthBase(false, component);

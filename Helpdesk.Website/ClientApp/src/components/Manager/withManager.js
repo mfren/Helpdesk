@@ -1,5 +1,6 @@
 ﻿import React from "react";
 import ManagerContext from "./context";
+import * as ROLES from '../../constants/roles';
 
 /*
     Provides the `Manager` class to a Component using `Context.Consumer`.
@@ -16,10 +17,9 @@ const withManagerBase = Component => props => (
 
 /*
     Provides the `Manager` class to a component in the `manager` property
-    Provides the current users to components via the `users` property
-        These can be accessed from a component using:
-        - props.users.currentUser
-        - props.users.currentAdmin
+    Provides the current user to components via the `user` property
+        The user's roles can be accessed using `props.user.roles`
+    Provides a bool to determine whether the current user is an admin via the `isAdmin`
 */
 const withManager = Component => {
     class WithManager extends React.Component {
@@ -28,44 +28,24 @@ const withManager = Component => {
             
             // Set the state
             this.state = {
-                currentUser: null,
-                currentAdmin: null,
+                user: null,
+                admin: null,
             }
         }
-        
+
         componentDidMount() {
-            // When the component mounts, we want to create the listeners
-            // We dont need to listen when the component isn't on screen
-            
-            // The `userListener` will change the state when Firebase says so.
-            // Not quite sure how this works, lets just call it magic.
-            // Anyway, it does (or did), if you/I am reading this, then
-            // it's probably gone wrong. Good Luck!
-            this.userListener = this.props.manager.userAuth.onAuthStateChanged(
+            this.listener = this.props.manager.onAuthUserListener(
                 authUser => {
-                    authUser
-                        ? this.setState({currentUser: authUser})    // Change the state
-                        : this.setState({currentUser: null});       // Dont change the state
-                }
+                    this.setState({ user: authUser, admin: authUser.roles[ROLES.ADMIN] });
+                },
+                () => {
+                    this.setState({ user: null, admin: null });
+                },
             );
-            
-            // Same for this one, but it listens on the the Admin Firebase Service
-            // rather than the User Service
-            this.adminListener = this.props.manager.adminAuth.onAuthStateChanged(
-                authAdmin => {
-                    authAdmin
-                        ? this.setState({currentAdmin: authAdmin})
-                        : this.setState({currentAdmin: null});
-                }
-            )
         }
-        
+
         componentWillUnmount() {
-            // When the component is off screen, we no longer need to listen
-            // for the state changes. This removes unnecessary processing
-            
-            this.userListener();    // Remove the listener
-            this.adminListener();
+            this.listener();
         }
         
         render() {
@@ -79,7 +59,7 @@ const withManager = Component => {
             // then all other components will update.
             
             return (
-                <Component {...this.props} users={this.state} />
+                <Component {...this.props} user={this.state.user} isAdmin={this.state.admin}/>
             )
         }
     }
