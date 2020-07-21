@@ -21,7 +21,7 @@ export default class App extends Component {
                     <Route path={ROUTES.SIGN_UP}>
                         <SignUp/>
                     </Route>
-                    <Route path="" exact={true}>
+                    <Route path={ROUTES.HOME}>
                         <Home/>
                     </Route>
                 </Switch>
