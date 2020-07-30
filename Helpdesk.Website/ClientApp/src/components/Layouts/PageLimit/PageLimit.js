@@ -4,6 +4,7 @@ import { Container, makeStyles } from "@material-ui/core";
 const useStyles = makeStyles(theme => ({
     pageLimit: {
         marginTop: theme.spacing(3),
+        height: "100%",
     },
 }));
 
