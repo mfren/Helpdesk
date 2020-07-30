@@ -30,14 +30,15 @@ export const withAuth = condition => Component => {
         }
 
         render() {
-            return (
-                <div>
-                    {this.state.clear ? 
-                        <Component {...this.props}/> :
-                        <div/>    
-                    }
-                </div>
-            )
+            if (this.state.clear) {
+                return (
+                    <Component {...this.props}/>
+                )
+            } else {
+                return (
+                    <div/>
+                )
+            }
         }
     }
     return withRouter(withManager(WithAuth))
