@@ -167,7 +167,7 @@ const SignUpBase = (props) => {
                     </Button>
                     <Grid container justify="flex-end">
                         <Grid item>
-                            <Link href="#" variant="body2">
+                            <Link href={ROUTES.SIGN_IN} variant="body2" onClick={ event => { event.preventDefault(); props.history.push(ROUTES.SIGN_IN) } }>
                                 Already have an account? Sign in
                             </Link>
                         </Grid>

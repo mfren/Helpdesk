@@ -15,6 +15,7 @@ import {
 } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import {withManager} from "../Manager";
+import * as ROUTES from '../../constants/routes';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -122,7 +123,7 @@ function SignInBase(props) {
                             </Link>
                         </Grid>
                         <Grid item>
-                            <Link href="#" variant="body2">
+                            <Link href={ROUTES.SIGN_UP} variant="body2" onClick={ event => { event.preventDefault(); props.history.push(ROUTES.SIGN_UP) } }>
                                 {"Don't have an account? Sign Up"}
                             </Link>
                         </Grid>
