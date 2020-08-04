@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import {
     ButtonBase,
     Grid,
@@ -9,6 +10,7 @@ import {
 } from '@material-ui/core';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import FiberManualRecordOutlinedIcon from '@material-ui/icons/FiberManualRecordOutlined';
+import {withManager} from "../Manager";
 
 const useStyles = makeStyles((theme) => ({
     buttonBase: {
@@ -65,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function ReportPreview(props) {
+const ReportPreviewBase = props => {
     
     const classes = useStyles();    // Use predefined CSS classes
     
@@ -108,3 +110,5 @@ export default function ReportPreview(props) {
         </ButtonBase>
     )
 }
+
+export const ReportPreview = withManager(withRouter(ReportPreviewBase))
