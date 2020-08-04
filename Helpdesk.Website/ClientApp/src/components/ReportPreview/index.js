@@ -1,2 +1,2 @@
-﻿import ReportPreview from "./ReportPreview";
+﻿import { ReportPreview } from "./ReportPreview";
 export default ReportPreview;
