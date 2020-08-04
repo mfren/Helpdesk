@@ -1,56 +1,39 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Firebase.Database;
+using Firebase.Database.Query;
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
+using Helpdesk.Website.Models;
 
 namespace Helpdesk.Website.Services
 {
     public static class FirebaseAuthService
     {
-        private static FirebaseAuth UserAuth { get; set; }
-        private static FirebaseAuth AdminAuth { get; set; }
+        static readonly FirebaseClient FirebaseDB = new FirebaseClient("https://helpdesk-users.firebaseio.com");
         
-        public static void Configure()
+        public static async Task<bool> CheckToken(bool adminNeeded, string jwt)
         {
-            // Setup User Authentication
-            var userApp = FirebaseApp.Create(new AppOptions()
+            try
             {
-                Credential = GoogleCredential.FromFile("FirebaseServiceAccounts/helpdesk-users-firebase-adminsdk-7j3w5-df4c9ec95c.json")
-            });
-            UserAuth = FirebaseAuth.GetAuth(userApp);
-            
-            // Setup Admin Authentication
-            var adminApp = FirebaseApp.Create(new AppOptions()
-            {
-                Credential = GoogleCredential.FromFile("FirebaseServiceAccounts/helpdesk-admins-firebase-adminsdk-scgf7-a966a25648.json")
-            }, "admin");
-            AdminAuth = FirebaseAuth.GetAuth(adminApp);
-        }
+                var decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(jwt);
 
-        private static FirebaseAuth SetupAuth(string tokenFile)
-        {
-            var firebaseApp = FirebaseApp.Create(new AppOptions()
-            {
-                Credential = GoogleCredential.FromFile(tokenFile),
-            });
+                var dbUser = await FirebaseDB
+                    .Child("users")
+                    .OrderByKey()
+                    .StartAt(decodedToken.Uid)
+                    .LimitToFirst(1)
+                    .OnceAsync<User>();
 
-            return FirebaseAuth.GetAuth(firebaseApp);
-        }
-        
-        public static async Task<bool> CheckUserToken(string jwt)
-        {
-            try { var decodedToken = await UserAuth.VerifyIdTokenAsync(jwt); }
+                foreach (var user in dbUser)
+                {
+                    Console.WriteLine("User: " + user.Object.Roles["ADMIN"]);
+                }
+                
+            }
             catch (FirebaseAdmin.Auth.FirebaseAuthException) { return false; }
-            
-            return true;
-        }
-        
-        public static async Task<bool> CheckAdminToken(string jwt)
-        {
-            try { var decodedToken = await AdminAuth.VerifyIdTokenAsync(jwt); }
-            catch (FirebaseAdmin.Auth.FirebaseAuthException) { return false; }
-            
+
             return true;
         }
     }

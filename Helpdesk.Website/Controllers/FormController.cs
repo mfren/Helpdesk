@@ -11,10 +11,9 @@ namespace Helpdesk.Website.Controllers
     public class FormController : Controller
     {
         [HttpPost]
-        public async Task<bool> GetForm([FromHeader] string firebaseJWT, [FromHeader] bool admin, [FromBody] Form form)
+        public async Task<bool> GetForm([FromHeader] string firebaseJWT, [FromBody] Form form)
         {
-            Console.WriteLine(firebaseJWT, form);
-            return await FirebaseAuthService.CheckUserToken(firebaseJWT);
+            return await FirebaseAuthService.CheckToken(false, firebaseJWT);
         }
     }
 }

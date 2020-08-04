@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FirebaseAdmin;
+using FirebaseAdmin.Auth;
+using Google.Apis.Auth.OAuth2;
 
 namespace Helpdesk.Website
 {
@@ -39,6 +42,11 @@ namespace Helpdesk.Website
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile("FirebaseServiceAccounts/helpdesk-users-firebase-adminsdk-7j3w5-df4c9ec95c.json")
+            });
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
