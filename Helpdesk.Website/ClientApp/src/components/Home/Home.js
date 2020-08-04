@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 import NoReportsIcon from "../NoReportsIcon";
-import ReportPreview from "../ReportPreview/ReportPreview";
+import ReportPreview from "../ReportPreview";
 import PageLimit from "../Layouts/PageLimit";
 import {withAuth} from "../Manager/withAuth";
 import {withManager} from "../Manager";
