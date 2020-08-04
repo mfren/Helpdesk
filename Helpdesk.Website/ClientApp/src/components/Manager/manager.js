@@ -62,7 +62,7 @@ class Manager {
                 fallback();
             }
         });
-
+    
     user = uid => this.db.ref(`users/${uid}`);
     users = () => this.db.ref('users');
     
@@ -72,20 +72,25 @@ class Manager {
     request = {
         
         // Post Data to Backend
-        post: (admin, path, data) => {
-            const requestOptions = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'admin': admin
-                },
-                body: JSON.stringify(data)
-            };
-
+        post: (path, data) => {
             let responseData;
-            fetch(path, requestOptions)
-                .then(response => response.json())
-                .then(jsonData => responseData = jsonData);
+
+            // TODO fix response data
+            
+            firebase.auth().currentUser.getIdToken(true).then(function (idToken) {
+                const requestOptions = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'firebaseJWT': idToken,
+                    },
+                    body: JSON.stringify(data)
+                };
+                
+                fetch(path, requestOptions)
+                    .then(response => response.json())
+                    .then(jsonData => responseData = jsonData);
+            })
             
             return responseData
         },
@@ -93,32 +98,19 @@ class Manager {
         // Post Form
         postForm: (title, description, rank, cat, subCat) => {
             
+            // TODO Datatype checking
+            
             // Create data structure
             const data = {
-                "title": title,
-                "description": description,
-                "rank": rank,
-                "cat": cat,
-                "sub-cat": subCat
+                "title": title,             // str
+                "description": description, // str
+                "rank": rank,               // int
+                "cat": cat,                 // str
+                "sub-cat": subCat           // str
             }
             
-            // Determine whether we are admin
-            let admin;
-            if (this.userAuth.currentUser) {
-                // Post as User
-                admin = false;
-            }
-            else if (this.adminAuth.currentUser) {
-                // Post as Admin
-                admin = true
-            }
-            else {
-                // No current user
-                return false
-            }
-
             // Post data
-            this.request.post(admin, ROUTES.formPost, data)
+            this.request.post(ROUTES.formPost, data)
             return true
         },
     }
