@@ -11,7 +11,7 @@ const useStyles = makeStyles(theme => ({
 export function PageLimit(props) {
     const classes = useStyles()
     return (
-        <Container className={classes.pageLimit} maxWidth="lg">
+        <Container className={classes.pageLimit} maxWidth={props.maxWidth}>
             {props.children}
         </Container>
     )
