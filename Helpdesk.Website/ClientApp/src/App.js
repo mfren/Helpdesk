@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import {Route, Switch} from "react-router-dom";
-import { makeStyles } from "@material-ui/core";
+import {colors, makeStyles} from "@material-ui/core";
 import SignIn from "./components/SignIn";
 import Home from "./components/Home";
 import Navigation from "./components/Navigation";
 import SignUp from "./components/SignUp";
+import CreateReport from "./components/CreateReport";
 import Manager, {ManagerContext} from "./components/Manager";
 import * as ROUTES from "./constants/routes";
 
@@ -50,6 +51,9 @@ export default function App() {
                         </Route>
                         <Route path={ROUTES.SIGN_UP}>
                             <SignUp/>
+                        </Route>
+                        <Route path={ROUTES.NEW_REPORT}>
+                            <CreateReport/>
                         </Route>
                         <Route path={ROUTES.HOME}>
                             <Home/>
