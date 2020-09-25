@@ -96,7 +96,7 @@ class UserHomeBase extends React.Component {
         const { classes } = this.props;
         
         return (
-            <PageLimit>
+            <PageLimit maxWidth="lg">
                 <Grid container direction="column" spacing={3} className={classes.mainGrid}>
                     <Grid container direction="row" justify="space-between" alignItems="center"
                           className={classes.headerGrid}>
@@ -160,7 +160,7 @@ const UserHome = withManager(withStyles(styles)(UserHomeBase));
 
 function AdminHomeBase(props) {
     return (
-        <PageLimit>
+        <PageLimit maxWidth="lg">
             <h1>Hello Admin!</h1>
         </PageLimit>
     )
