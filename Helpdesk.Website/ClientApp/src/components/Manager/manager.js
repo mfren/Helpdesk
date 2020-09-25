@@ -70,48 +70,33 @@ class Manager {
     // TODO Update
     //// Requests ////
     request = {
-        
         // Post Data to Backend
-        post: (path, data) => {
-            let responseData;
-
-            // TODO fix response data
+        post: async function(path, data) {
+            let token = await firebase.auth().currentUser.getIdToken(true);
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'firebaseJWT': token,
+                },
+                body: JSON.stringify(data)
+            };
             
-            firebase.auth().currentUser.getIdToken(true).then(function (idToken) {
-                const requestOptions = {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'firebaseJWT': idToken,
-                    },
-                    body: JSON.stringify(data)
-                };
-                
-                fetch(path, requestOptions)
-                    .then(response => response.json())
-                    .then(jsonData => responseData = jsonData);
-            })
-            
-            return responseData
+            return fetch(path, requestOptions).then(response => response.json())
         },
         
         // Post Form
-        postForm: (title, description, rank, cat, subCat) => {
-            
-            // TODO Datatype checking
-            
+        postForm: (title, description, urg, cat) => {
             // Create data structure
             const data = {
                 "title": title,             // str
                 "description": description, // str
-                "rank": rank,               // int
+                "urg": urg,                 // str
                 "cat": cat,                 // str
-                "sub-cat": subCat           // str
             }
             
             // Post data
-            this.request.post(ROUTES.formPost, data)
-            return true
+            return this.request.post(ROUTES.formPost, data)
         },
     }
 }
