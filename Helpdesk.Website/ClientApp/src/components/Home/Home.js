@@ -67,18 +67,22 @@ function UserHomeBase(props) {
         props.manager.request.getForms().then(data => {
             let pr = [];    // Temp holder for reports
             let cr = [];
-
-            // Loop through all data retrieved
-            // eslint-disable-next-line no-unused-vars
-            for (const [key, val] of Object.entries(data)) {
-                // stage === 2 indicates that it is completed
-                if (val.stage === 2) {
-                    cr.push(val);
-                } else {
-                    pr.push(val)
+            
+            if (data !== null) {
+                // Loop through all data retrieved
+                // eslint-disable-next-line no-unused-vars
+                for (const [key, val] of Object.entries(data)) {
+                    // stage === 2 indicates that it is completed
+                    if (val.stage === 2) {
+                        cr.push(val);
+                    } else {
+                        pr.push(val)
+                    }
                 }
             }
             
+            
+            // Pause if this
             if (pendingReports === null || completedReports === null) {
                 if (isMounted) {
                     setPR(pr);
