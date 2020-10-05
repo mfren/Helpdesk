@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {Route, Switch} from "react-router-dom";
-import {colors, makeStyles} from "@material-ui/core";
+import {makeStyles} from "@material-ui/core";
 import SignIn from "./components/SignIn";
 import Home from "./components/Home";
 import Navigation from "./components/Navigation";
