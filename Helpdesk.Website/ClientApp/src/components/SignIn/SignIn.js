@@ -68,7 +68,7 @@ function SignInBase(props) {
         // If not, it sets the error message in a local state, which is shown on the page
         // TODO Implement parameter routing
         props.manager.signIn(user, pass)
-            .then(() => props.history.push("/home"))
+            .then(() => props.history.push(ROUTES.HOME))
             .catch(error => setMsg(error.message))
             .then(() => console.log(props.manager.users()))
     };

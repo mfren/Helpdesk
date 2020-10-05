@@ -46,6 +46,9 @@ export default function App() {
                 </div>
                 <div className={classes.contentContainer}>
                     <Switch className={classes.switch}>
+                        <Route exact path={ROUTES.HOME}>
+                            <Home/>
+                        </Route>
                         <Route path={ROUTES.SIGN_IN}>
                             <SignIn/>
                         </Route>
