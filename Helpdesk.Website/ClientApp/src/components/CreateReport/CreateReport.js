@@ -101,6 +101,16 @@ const CreateReportBase = props => {
             tooltip = tooltip + ", Category"
         }
     }
+    if (urg === ""){
+        valid = false;
+
+        if (tooltip === ""){
+            tooltip = "Please add: Urgency"
+        }
+        else {
+            tooltip = tooltip + ", Urgency"
+        }
+    }
     
     const handleChange = {
         title: event => {
@@ -123,21 +133,16 @@ const CreateReportBase = props => {
             setLoading(true);
         }
         
-        let response = await props.manager.request.postForm(
-            title,
-            desc,
-            urg,
-            cat
-        );
-        
-        if (response === true) {
-            setSuccess(true);
-            setLoading(false);
-            props.history.push(ROUTES.HOME)
-        }
-        else {
-            setLoading(false);
-        }
+        props.manager.request.postForm(title, desc, urg, cat)()
+            .then(function () {
+                setSuccess(true);
+                setLoading(false);
+                props.history.push(ROUTES.HOME)
+            })
+            .catch(function (error) {
+                setLoading(false);
+                alert("Failed")
+            })
     };
     
     return (
