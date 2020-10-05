@@ -6,6 +6,7 @@ import Home from "./components/Home";
 import Navigation from "./components/Navigation";
 import SignUp from "./components/SignUp";
 import CreateReport from "./components/CreateReport";
+import ViewReport from "./components/ViewReport";
 import NoMatch from "./components/NoMatch";
 import Manager, {ManagerContext} from "./components/Manager";
 import * as ROUTES from "./constants/routes";
@@ -59,6 +60,7 @@ export default function App() {
                         <Route path={ROUTES.NEW_REPORT}>
                             <CreateReport/>
                         </Route>
+                        <Route path="/report/:id" component={ViewReport}/>
                         <Route path="*">
                             <NoMatch/>
                         </Route>
