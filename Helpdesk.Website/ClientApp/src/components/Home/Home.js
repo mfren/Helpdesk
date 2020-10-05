@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useEffect} from 'react';
+import { withRouter } from 'react-router-dom';
 import {
     Fab,
     Grid,
     Typography,
     Paper,
-    withStyles,
+    makeStyles,
 } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 import NoReportsIcon from "../NoReportsIcon";
@@ -13,9 +14,10 @@ import PageLimit from "../Layouts/PageLimit";
 import {withAuth} from "../Manager/withAuth";
 import {withManager} from "../Manager";
 import * as CONDITIONS from '../../constants/authConditions';
+import * as ROUTES from '../../constants/routes';
 
 
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
     btnIcon: {
         marginRight: theme.spacing(1),
     },
@@ -50,113 +52,114 @@ const styles = theme => ({
     headerGrid: {
         padding: theme.spacing(1)
     },
-});
+}));
 
-
-class UserHomeBase extends React.Component {
-    constructor(props) {
-        super(props);
-        
-        let reports = this.getReports();
-
-        this.state = {
-            pendingReports: reports[0],
-            completedReports: reports[1],
-        }
-    }
+function UserHomeBase(props) {
+    const classes = useStyles();
     
-    getReports() {
-        const reports = [
-            {
-                title: "Report 1",
-                desc: "Description 1",
-                status: [true, true, false]
-            },
-            {
-                title: "Report 3",
-                desc: "Description 3",
-                status: [true, true, false]
-            },
-        ];
+    const [pendingReports, setPR] = React.useState(null);
+    const [completedReports, setCR] = React.useState(null);
+    
+    useEffect(() => {
+        let isMounted = true;
+        
+        // Here we will fetch all appropriate data from the db
+        props.manager.request.getForms().then(data => {
+            let pr = [];    // Temp holder for reports
+            let cr = [];
 
-        let pr = [];
-        let cr = [];
-        reports.forEach(report => {
-            if (report.status[2] === true) {
-                cr.push(report);
-            } else {
-                pr.push(report);
+            // Loop through all data retrieved
+            // eslint-disable-next-line no-unused-vars
+            for (const [key, val] of Object.entries(data)) {
+                // stage === 2 indicates that it is completed
+                if (val.stage === 2) {
+                    cr.push(val);
+                } else {
+                    pr.push(val)
+                }
             }
-        });
+            
+            if (pendingReports === null || completedReports === null) {
+                if (isMounted) {
+                    setPR(pr);
+                    setCR(cr);
+                }
+            } else {
+                setTimeout(function() {
+                    if (isMounted) {
+                        setPR(pr);
+                        setCR(cr);
+                    }
+                }, 5000)
+            }
+        })
+        return () => { isMounted = false };
+    })
+
         
-        return [pr, cr]
-    }
-    
-    render() {
-        const { classes } = this.props;
-        
-        return (
-            <PageLimit maxWidth="lg">
-                <Grid container direction="column" spacing={3} className={classes.mainGrid}>
-                    <Grid container direction="row" justify="space-between" alignItems="center"
-                          className={classes.headerGrid}>
-                        <Grid item>
-                            {/* TODO Replace with actual name */}
-                            <Typography variant="h4">Welcome</Typography>
-                        </Grid>
-                        <Grid item>
-                            <Fab variant="extended" color="secondary" aria-label="add" size="medium"
-                                 className={classes.fab}>
-                                <AddIcon className={classes.btnIcon}/>
-                                <Typography variant="h6" className={classes.btnText}>Report Problem</Typography>
-                            </Fab>
-                        </Grid>
+    return (
+        <PageLimit maxWidth="lg">
+            <Grid container direction="column" spacing={3} className={classes.mainGrid}>
+                <Grid container direction="row" justify="space-between" alignItems="center"
+                      className={classes.headerGrid}>
+                    <Grid item>
+                        {/* TODO Replace with actual name */}
+                        <Typography variant="h4">Welcome</Typography>
                     </Grid>
-                    <Grid container direction="row" className={classes.reportsContainer}>
-                        <Grid item md={6} xs={12} className={classes.paperGridItem}>
-                            <Paper className={classes.paperContainer}>
-                                {this.state.pendingReports === null ?
-                                    <div>Loading</div> :
-                                    this.state.pendingReports.length === 0 ?
-                                        <NoReportsIcon text="You have no Pending Reports"/> :
-                                        <Grid container spacing={1} direction="column">
-                                            {this.state.pendingReports.map((report, index) => {
-                                                return (
-                                                    <Grid item key={index}>
-                                                        <ReportPreview title={report.title} desc={report.desc} status={report.status}/>
-                                                    </Grid>
-                                                )
-                                            })}
-                                        </Grid>
-                                }
-                            </Paper>
-                        </Grid>
-                        <Grid item md={6} xs={12} className={classes.paperGridItem}>
-                            <Paper className={classes.paperContainer}>
-                                {this.state.completedReports === null ?
-                                    <div>Loading</div> :
-                                    this.state.completedReports.length === 0  ?
-                                        <NoReportsIcon text="You have no Completed Reports"/> :
-                                        <Grid container spacing={1} direction="column">
-                                            {this.state.completedReports.map((report, index) => {
-                                                return (
-                                                    <Grid item key={index}>
-                                                        <ReportPreview title={report.title} desc={report.desc} status={report.status}/>
-                                                    </Grid>
-                                                )
-                                            })}
-                                        </Grid>
-                                }
-                            </Paper>
-                        </Grid>
+                    <Grid item>
+                        <Fab variant="extended" 
+                             color="secondary" 
+                             aria-label="add" 
+                             size="medium"
+                             onClick={() => props.history.push(ROUTES.NEW_REPORT)}
+                             className={classes.fab}>
+                            <AddIcon className={classes.btnIcon}/>
+                            <Typography variant="h6" className={classes.btnText}>Report Problem</Typography>
+                        </Fab>
                     </Grid>
                 </Grid>
-            </PageLimit>
-        )
-    }
+                <Grid container direction="row" className={classes.reportsContainer}>
+                    <Grid item md={6} xs={12} className={classes.paperGridItem}>
+                        <Paper className={classes.paperContainer}>
+                            {pendingReports === null ?
+                                <div>Loading</div> :
+                                pendingReports.length === 0 ?
+                                    <NoReportsIcon text="You have no Pending Reports"/> :
+                                    <Grid container spacing={1} direction="column">
+                                        {pendingReports.map((report, index) => {
+                                            return (
+                                                <Grid item key={index}>
+                                                    <ReportPreview title={report.title} desc={report.desc} status={report.stage}/>
+                                                </Grid>
+                                            )
+                                        })}
+                                    </Grid>
+                            }
+                        </Paper>
+                    </Grid>
+                    <Grid item md={6} xs={12} className={classes.paperGridItem}>
+                        <Paper className={classes.paperContainer}>
+                            {completedReports === null ?
+                                <div>Loading</div> :
+                                completedReports.length === 0  ?
+                                    <NoReportsIcon text="You have no Completed Reports"/> :
+                                    <Grid container spacing={1} direction="column">
+                                        {completedReports.map((report, index) => {
+                                            return (
+                                                <Grid item key={index}>
+                                                    <ReportPreview title={report.title} desc={report.desc} status={report.stage}/>
+                                                </Grid>
+                                            )
+                                        })}
+                                    </Grid>
+                            }
+                        </Paper>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </PageLimit>
+    )
 }
-
-const UserHome = withManager(withStyles(styles)(UserHomeBase));
 
 function AdminHomeBase(props) {
     return (
@@ -165,16 +168,14 @@ function AdminHomeBase(props) {
         </PageLimit>
     )
 }
-const AdminHome = withManager(AdminHomeBase);
-
 function HomeBase(props) {
     if (props.isAdmin === true) {
         return (
-            <AdminHome/>
+            <AdminHomeBase {...props}/>
         )
     } else if (props.isAdmin === false) {
         return (
-            <UserHome/>
+            <UserHomeBase {...props}/>
         )
     } else {
         return (
@@ -183,4 +184,4 @@ function HomeBase(props) {
     }
 }
 
-export const Home = withAuth(CONDITIONS.withAnyUser)(withManager(HomeBase));
+export const Home = withAuth(CONDITIONS.withAnyUser)(withManager(withRouter(HomeBase)));

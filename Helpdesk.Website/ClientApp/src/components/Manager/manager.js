@@ -85,19 +85,32 @@ class Manager {
             return fetch(path, requestOptions).then(response => response.json())
         },
         
-        // Post Form
-        postForm: (title, description, urg, cat) => {
-            // Create data structure
-            const data = {
-                "title": title,             // str
-                "description": description, // str
-                "urg": urg,                 // str
-                "cat": cat,                 // str
+        postForm: function(_title, _description, _urg, _cat) {
+            let data = {
+                user: this.auth.currentUser.uid,
+                title: _title,
+                desc: _description,
+                urg: _urg,
+                cat: _cat,
+                stage: 0,
             }
             
-            // Post data
-            return this.request.post(ROUTES.formPost, data)
-        },
+            let key = this.db.ref().child('reports').push().key;
+            
+            return () => this.db.ref('reports/' + key).set(data)
+        }.bind(this),
+        
+        getForms: async function() {
+            let uid = this.auth.currentUser.uid;
+            
+            let data;
+            let ref = this.db.ref("reports");
+            await ref.orderByChild("user").equalTo(uid).once("value").then(function (snapshot) {
+                data = snapshot.val()
+            })
+            return data;
+        }.bind(this)
+        
     }
 }
 

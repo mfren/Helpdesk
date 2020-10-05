@@ -80,7 +80,7 @@ const ReportPreviewBase = props => {
     const status = props.status;
     
     let statusText;
-    statusText = status[2] ? "Report Closed" : statusText = status[1] ? "Being Supported" : "Awaiting Support";
+    statusText = status === 2 ? "Report Closed" : status === 1 ? "Being Supported" : "Awaiting Support";
     
     // TODO is there a better way to layout the dots?
     
@@ -92,9 +92,9 @@ const ReportPreviewBase = props => {
                         <Grid item className={classes.statusGridItem}>
                             <Tooltip title={statusText}>
                                 <Grid container direction="row-reverse">
-                                    {status[2] ? <FiberManualRecordIcon className={classes.status3}/> : <FiberManualRecordOutlinedIcon className={classes.status3}/>}
-                                    {status[1] ? <FiberManualRecordIcon className={classes.status2}/> : <FiberManualRecordOutlinedIcon className={classes.status2}/>}
-                                    {status[0] ? <FiberManualRecordIcon className={classes.status1}/> : <FiberManualRecordOutlinedIcon className={classes.status1}/>}
+                                    {status === 2 ? <FiberManualRecordIcon className={classes.status3}/> : <FiberManualRecordOutlinedIcon className={classes.status3}/>}
+                                    {status >= 1 ? <FiberManualRecordIcon className={classes.status2}/> : <FiberManualRecordOutlinedIcon className={classes.status2}/>}
+                                    {status >= 0 ? <FiberManualRecordIcon className={classes.status1}/> : <FiberManualRecordOutlinedIcon className={classes.status1}/>}
                                 </Grid>
                             </Tooltip>
                         </Grid>
