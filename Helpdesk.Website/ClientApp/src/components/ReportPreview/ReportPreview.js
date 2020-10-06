@@ -11,6 +11,7 @@ import {
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import FiberManualRecordOutlinedIcon from '@material-ui/icons/FiberManualRecordOutlined';
 import {withManager} from "../Manager";
+import * as ROUTES from '../../constants/routes';
 
 const useStyles = makeStyles((theme) => ({
     buttonBase: {
@@ -78,6 +79,7 @@ const ReportPreviewBase = props => {
     let title = props.title;
     const description = props.desc;
     const status = props.status;
+    const reportId = props.id;
     
     let statusText;
     statusText = status === 2 ? "Report Closed" : status === 1 ? "Being Supported" : "Awaiting Support";
@@ -85,7 +87,7 @@ const ReportPreviewBase = props => {
     // TODO is there a better way to layout the dots?
     
     return (
-        <ButtonBase className={classes.buttonBase}>
+        <ButtonBase className={classes.buttonBase} onClick={() => props.history.push(ROUTES.VIEW_REPORT + reportId)}>
             <Paper onMouseOver={onMouseOver} onMouseOut={onMouseOut} className={classes.paperContainer} elevation={shadow}>
                 <Grid container direction="column" className={classes.grid}>
                     <Grid container direction="row-reverse" className={classes.titleStatusGrid}>
