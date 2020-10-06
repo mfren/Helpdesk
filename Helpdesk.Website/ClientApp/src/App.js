@@ -60,7 +60,7 @@ export default function App() {
                         <Route path={ROUTES.NEW_REPORT}>
                             <CreateReport/>
                         </Route>
-                        <Route path="/report/:id" component={ViewReport}/>
+                        <Route path={ROUTES.VIEW_REPORT + ":id"} component={ViewReport}/>
                         <Route path="*">
                             <NoMatch/>
                         </Route>
