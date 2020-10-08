@@ -62,7 +62,7 @@ class Manager {
                 fallback();
             }
         });
-
+    
     user = uid => this.db.ref(`users/${uid}`);
     users = () => this.db.ref('users');
     
@@ -70,57 +70,47 @@ class Manager {
     // TODO Update
     //// Requests ////
     request = {
-        
         // Post Data to Backend
-        post: (admin, path, data) => {
+        post: async function(path, data) {
+            let token = await firebase.auth().currentUser.getIdToken(true);
             const requestOptions = {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'admin': admin
+                    'firebaseJWT': token,
                 },
                 body: JSON.stringify(data)
             };
-
-            let responseData;
-            fetch(path, requestOptions)
-                .then(response => response.json())
-                .then(jsonData => responseData = jsonData);
             
-            return responseData
+            return fetch(path, requestOptions).then(response => response.json())
         },
         
-        // Post Form
-        postForm: (title, description, rank, cat, subCat) => {
-            
-            // Create data structure
-            const data = {
-                "title": title,
-                "description": description,
-                "rank": rank,
-                "cat": cat,
-                "sub-cat": subCat
+        postForm: function(_title, _description, _urg, _cat) {
+            let data = {
+                user: this.auth.currentUser.uid,
+                title: _title,
+                desc: _description,
+                urg: _urg,
+                cat: _cat,
+                stage: 0,
             }
             
-            // Determine whether we are admin
-            let admin;
-            if (this.userAuth.currentUser) {
-                // Post as User
-                admin = false;
-            }
-            else if (this.adminAuth.currentUser) {
-                // Post as Admin
-                admin = true
-            }
-            else {
-                // No current user
-                return false
-            }
-
-            // Post data
-            this.request.post(admin, ROUTES.formPost, data)
-            return true
-        },
+            let key = this.db.ref().child('reports').push().key;
+            
+            return () => this.db.ref('reports/' + key).set(data)
+        }.bind(this),
+        
+        getForms: async function() {
+            let uid = this.auth.currentUser.uid;
+            
+            let data;
+            let ref = this.db.ref("reports");
+            await ref.orderByChild("user").equalTo(uid).once("value").then(function (snapshot) {
+                data = snapshot.val()
+            })
+            return data;
+        }.bind(this)
+        
     }
 }
 

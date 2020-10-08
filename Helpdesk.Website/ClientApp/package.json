@@ -16,22 +16,23 @@
     "rimraf": "^2.6.2",
     "firebase": "^7.14.5",
     "material-ui": "^0.20.2",
-    "@material-ui/core": "^4.10.1",
-    "@material-ui/icons": "^4.9.1",
-    "@material-ui/styles": "^4.10.0",
+    "@material-ui/core": "latest",
+    "@material-ui/icons": "latest",
+    "@material-ui/styles": "latest",
     "recompose": "^0.30.0",
     "fontsource-roboto": "^2.1.4"
   },
   "devDependencies": {
     "ajv": "^6.9.1",
+    "clsx": "^1.1.1",
     "cross-env": "^5.2.0",
-    "typescript": "^3.7.5",
     "eslint": "^6.8.0",
     "eslint-config-react-app": "^5.2.0",
     "eslint-plugin-flowtype": "^4.6.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.18.3"
+    "eslint-plugin-react": "^7.18.3",
+    "typescript": "^3.7.5"
   },
   "eslintConfig": {
     "extends": "react-app"

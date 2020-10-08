@@ -8,14 +8,17 @@ export const withAuth = condition => Component => {
         constructor(props) {
             super(props);
             
-            this.state = {clear: false};
+            this.state = { clear: false };
         }
         
         componentDidMount() {
             this.listener = this.props.manager.onAuthUserListener(
-                authUser => {
+                authUser => {                    
                     if (!condition(authUser)) {
                         this.props.history.push(ROUTES.SIGN_IN)
+                    }
+                    else {
+                        this.setState({ clear: true })
                     }
                 },
                 () => this.props.history.push(ROUTES.SIGN_IN)
@@ -27,14 +30,15 @@ export const withAuth = condition => Component => {
         }
 
         render() {
-            return (
-                <div>
-                    {this.state.clear ? 
-                        <Component {...this.props}/> :
-                        <div/>    
-                    }
-                </div>
-            )
+            if (this.state.clear) {
+                return (
+                    <Component {...this.props}/>
+                )
+            } else {
+                return (
+                    <div/>
+                )
+            }
         }
     }
     return withRouter(withManager(WithAuth))

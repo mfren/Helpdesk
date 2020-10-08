@@ -9,12 +9,15 @@ namespace Helpdesk.Website.Models
         
         public string Description { get; set; }
         
-        public int Rank { get; set; }
+        [JsonProperty(PropertyName = "urg")]
+        public string Urgency { get; set; }
         
         [JsonProperty(PropertyName = "cat")]
         public string Category { get; set; }
-        
-        [JsonProperty(PropertyName = "sub-cat")]
-        public string SubCategory { get; set; }
+
+        public override string ToString()
+        {
+            return "Title: " + Title + "\nDescription: " + Description + "\nUrgency: " + Urgency + "\nCategory: " + Category;
+        }
     }
 }
