@@ -72,6 +72,10 @@ function UserHomeBase(props) {
                 // Loop through all data retrieved
                 // eslint-disable-next-line no-unused-vars
                 for (const [key, val] of Object.entries(data)) {
+                    
+                    // Add the id of the report as a value
+                    val["id"] = key;
+                    
                     // stage === 2 indicates that it is completed
                     if (val.stage === 2) {
                         cr.push(val);
@@ -80,7 +84,6 @@ function UserHomeBase(props) {
                     }
                 }
             }
-            
             
             // Pause if this
             if (pendingReports === null || completedReports === null) {
@@ -98,8 +101,7 @@ function UserHomeBase(props) {
             }
         })
         return () => { isMounted = false };
-    })
-
+    }, /*[completedReports, pendingReports, props.manager.request]*/) // Uncomment to make it like ComponentDidMount
         
     return (
         <PageLimit maxWidth="lg">
@@ -133,7 +135,12 @@ function UserHomeBase(props) {
                                         {pendingReports.map((report, index) => {
                                             return (
                                                 <Grid item key={index}>
-                                                    <ReportPreview title={report.title} desc={report.desc} status={report.stage}/>
+                                                    <ReportPreview 
+                                                        title={report.title} 
+                                                        desc={report.desc} 
+                                                        status={report.stage}
+                                                        id={report.id}
+                                                    />
                                                 </Grid>
                                             )
                                         })}
@@ -151,7 +158,11 @@ function UserHomeBase(props) {
                                         {completedReports.map((report, index) => {
                                             return (
                                                 <Grid item key={index}>
-                                                    <ReportPreview title={report.title} desc={report.desc} status={report.stage}/>
+                                                    <ReportPreview 
+                                                        title={report.title} 
+                                                        desc={report.desc} 
+                                                        status={report.stage} 
+                                                        id={report.id}/>
                                                 </Grid>
                                             )
                                         })}
