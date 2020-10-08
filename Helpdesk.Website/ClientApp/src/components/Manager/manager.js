@@ -109,8 +109,17 @@ class Manager {
                 data = snapshot.val()
             })
             return data;
-        }.bind(this)
+        }.bind(this),
         
+        getForm: async function(id) {
+
+            let data;
+            let ref = this.db.ref("reports/" + id);
+            await ref.once("value").then(function (snapshot) {
+                data = snapshot.val()
+            })
+            return data;
+        }.bind(this),
     }
 }
 
