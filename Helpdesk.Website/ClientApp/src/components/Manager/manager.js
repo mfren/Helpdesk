@@ -66,6 +66,10 @@ class Manager {
     user = uid => this.db.ref(`users/${uid}`);
     users = () => this.db.ref('users');
     
+    currentUser = () => { return {
+        email: this.auth.currentUser,
+        uid: this.auth.uid
+    }}
     
     // TODO Update
     //// Requests ////
@@ -119,6 +123,10 @@ class Manager {
                 data = snapshot.val()
             })
             return data;
+        }.bind(this),
+        
+        updateForm: async function(id, data) {
+            await this.db.ref("reports/" + id).set(data);
         }.bind(this),
     }
 }
