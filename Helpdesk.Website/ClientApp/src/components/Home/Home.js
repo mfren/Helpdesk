@@ -76,8 +76,8 @@ function UserHomeBase(props) {
                     // Add the id of the report as a value
                     val["id"] = key;
                     
-                    // stage === 2 indicates that it is completed
-                    if (val.stage === 2) {
+                    // status === 2 indicates that it is completed
+                    if (val.status === 2) {
                         cr.push(val);
                     } else {
                         pr.push(val)
@@ -137,8 +137,8 @@ function UserHomeBase(props) {
                                                 <Grid item key={index}>
                                                     <ReportPreview 
                                                         title={report.title} 
-                                                        desc={report.desc} 
-                                                        status={report.stage}
+                                                        desc={report.comments[0].comment} 
+                                                        status={report.status}
                                                         id={report.id}
                                                     />
                                                 </Grid>
@@ -160,8 +160,8 @@ function UserHomeBase(props) {
                                                 <Grid item key={index}>
                                                     <ReportPreview 
                                                         title={report.title} 
-                                                        desc={report.desc} 
-                                                        status={report.stage} 
+                                                        desc={report.comments[0].comment} 
+                                                        status={report.status} 
                                                         id={report.id}/>
                                                 </Grid>
                                             )

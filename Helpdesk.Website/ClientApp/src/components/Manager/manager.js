@@ -67,41 +67,46 @@ class Manager {
     users = () => this.db.ref('users');
     
     currentUser = () => { return {
-        email: this.auth.currentUser,
-        uid: this.auth.uid
+        email: this.auth.currentUser.email,
+        uid: this.auth.currentUser.uid
     }}
     
     // TODO Update
     //// Requests ////
     request = {
-        // Post Data to Backend
-        post: async function(path, data) {
-            let token = await firebase.auth().currentUser.getIdToken(true);
-            const requestOptions = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'firebaseJWT': token,
-                },
-                body: JSON.stringify(data)
-            };
+        postForm: async function(_title, _description, _urg, _cat) {
             
-            return fetch(path, requestOptions).then(response => response.json())
-        },
-        
-        postForm: function(_title, _description, _urg, _cat) {
+            let d = new Date();
+            let currentDatetime = {
+                year: d.getFullYear(),
+                month: d.getMonth(),
+                day: d.getDay(),
+                hour: d.getHours(),
+                minute: d.getMinutes(),
+            }
+            
             let data = {
-                user: this.auth.currentUser.uid,
                 title: _title,
-                desc: _description,
                 urg: _urg,
                 cat: _cat,
-                stage: 0,
+                status: 0,
+                user: this.currentUser(),
+                comments: {
+                    0: {
+                        user: this.currentUser(),
+                        comment: _description,
+                        datetime: currentDatetime,
+                    }
+                },
+                datetime: currentDatetime,
             }
+            console.log(data)
             
             let key = this.db.ref().child('reports').push().key;
             
-            return () => this.db.ref('reports/' + key).set(data)
+            await this.db.ref('reports/' + key).set(data);
+            
+            return key
         }.bind(this),
         
         getForms: async function() {
@@ -109,9 +114,13 @@ class Manager {
             
             let data;
             let ref = this.db.ref("reports");
-            await ref.orderByChild("user").equalTo(uid).once("value").then(function (snapshot) {
-                data = snapshot.val()
-            })
+            await ref
+                .orderByChild("user/uid")
+                .equalTo(uid)
+                .once("value")
+                .then(function (snapshot) {
+                    data = snapshot.val()
+                })
             return data;
         }.bind(this),
         
