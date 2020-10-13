@@ -5,7 +5,7 @@ import {
     Paper,
     Typography,
     Grid,
-    colors as COLORS, Chip
+    colors as COLORS, Chip, Divider
 } from "@material-ui/core";
 import PageLimit from "../Layouts/PageLimit";
 import {withAuth} from "../Manager/withAuth";
@@ -13,7 +13,7 @@ import {withManager} from "../Manager";
 import * as CONDITIONS from "../../constants/authConditions";
 import * as CONFIG_VALUES from "../../constants/reportValues";
 import * as ROUTES from '../../constants/routes';
-import ConfirmationDialogRaw from "./StatusChip";
+import ConfirmationDialogRaw from "./ConfirmationDialog";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
@@ -61,8 +61,82 @@ const useStyles = makeStyles((theme) => ({
         '&:hover, &:focus': {
             backgroundColor: COLORS.red["400"],
         },
+    },
+    topDivider: {
+        marginTop: theme.spacing(1),
+        marginBottom: theme.spacing(2),
+        height: "2px",
+    },
+    bottomDivider: {
+        marginBottom: theme.spacing(2),
+        height: "2px",
     }
 }));
+
+const UserTimeCommentsStyles = makeStyles({
+    text: {
+        display: "inline-block"
+    }
+});
+
+const CommentStyles = makeStyles((theme) => ({
+    text: {
+        display: "inline-block"
+    },
+    commentContainer: {
+        marginLeft: theme.spacing(5),
+        marginRight: theme.spacing(5),
+    },
+    verticalDivider: {
+        height: "24px",
+        width: "2px",
+        marginLeft: "32px",
+    },
+    headerContainer: {
+        backgroundColor: COLORS.grey["100"],
+        borderTopLeftRadius: "4px",
+        borderTopRightRadius: "4px",
+        border: "1px solid #ccc!important",
+        padding: theme.spacing(1)
+    },
+    descContainer: {
+        padding: theme.spacing(1),
+        borderBottomLeftRadius: "4px",
+        borderBottomRightRadius: "4px",
+    }
+}));
+
+function UserTimeComments(props) {
+    const classes = UserTimeCommentsStyles();
+
+    return (
+        <Typography className={classes.text}>
+            {props.username} reported this issue at {props.datetime.hour}:{props.datetime.minute}
+        </Typography>
+    )
+}
+
+function Comment(props) {
+    const classes = CommentStyles();
+    let username = props.comment.user.email;
+    let time = `${props.comment.datetime.hour}:${props.comment.datetime.minute}`;
+    let date = `on ${props.comment.datetime.day}/${props.comment.datetime.month}/${props.comment.datetime.year}`
+    let description = props.comment.comment;
+    
+    return (
+        <div className={classes.commentContainer}>
+            <Paper>
+                <div className={classes.headerContainer}>
+                    <Typography>{username} commented at {time} {date}</Typography>
+                </div>
+                <div className={classes.descContainer}>
+                    <Typography>{description}</Typography>
+                </div>
+            </Paper>
+            <Divider variant="vertical" className={classes.verticalDivider}/>
+        </div>
+    )
+}
 
 const ViewReportBase = props => {
     const classes = useStyles();
@@ -92,17 +166,12 @@ const ViewReportBase = props => {
         )
     }
     
-    
-    let timeSinceOpen = "1 hour";
-    
-    
-    
     //// Set up chip ////
     let iconProps = { className: classes.icon }
 
-    let [chipLabel, colorClass, chipIcon] = formData.stage === 2 ?
+    let [chipLabel, colorClass, chipIcon] = formData.status === 2 ?
         ["Report Closed", classes.status2, <CheckCircleOutlineIcon {...iconProps}/>]:
-        formData.stage === 1 ?
+        formData.status === 1 ?
             ["Being Supported", classes.status1, <HelpOutlineIcon {...iconProps}/>]:
             ["Awaiting Support", classes.status0, <ErrorOutlineIcon {...iconProps}/>];
     
@@ -117,7 +186,7 @@ const ViewReportBase = props => {
 
         if (newValue !== undefined) {
             let newData = formData;
-            newData.stage = newValue;
+            newData.status = newValue;
 
             props.manager.request.updateForm(id, newData).then();
 
@@ -133,7 +202,7 @@ const ViewReportBase = props => {
             <div>No results found</div>
         )
     }
-    else if (formData.user !== uid && isAdmin === false) {
+    else if (formData.user.uid !== uid && isAdmin === false) {
         return (
             <div>You dont have access to this report</div>
         )
@@ -157,7 +226,7 @@ const ViewReportBase = props => {
                                     keepMounted
                                     open={open}
                                     onClose={handleClose}
-                                    value={formData.stage}
+                                    value={formData.status}
                                 />
                             </div>
                         ) : (
@@ -169,16 +238,28 @@ const ViewReportBase = props => {
                         )
                     }
                 </Grid>
-                <div>
-                    <Typography>USER opened this report {timeSinceOpen}</Typography>
-                </div>
+                <UserTimeComments 
+                    username={formData.user.email} 
+                    datetime={formData.datetime}
+                    commentsLength={formData.comments}
+                />
                 
+                <Divider className={classes.topDivider}/>
                 
-                
-                
-                
+                <Grid container direction="column">
+                    {formData.comments.map((value) => {
+                        return (
+                            <Grid item>
+                                <Comment comment={value}/>
+                            </Grid>
+                        )
+                    })}
+                </Grid>
+                <Divider className={classes.bottomDivider}/>
 
-                <Typography variant="body1">{formData.desc}</Typography>
+
+
+
             </PageLimit>
         )
     }
