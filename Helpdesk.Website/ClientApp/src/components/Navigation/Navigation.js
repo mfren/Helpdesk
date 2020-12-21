@@ -77,8 +77,7 @@ function NavigationBase(props) {
                                 open={open}
                                 onClose={handleClose}
                             >
-                                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                                <MenuItem onClick={handleClose}>My account</MenuItem>
+                                <MenuItem onClick={() => {handleClose(); props.manager.signOut()}}>Sign Out</MenuItem>
                             </Menu>
                         </div>
                     )}
