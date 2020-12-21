@@ -1,20 +1,14 @@
 ﻿import React from "react";
-import {CircularProgress, Grid, makeStyles, Paper} from "@material-ui/core";
+import {Grid, makeStyles, Paper} from "@material-ui/core";
 import ReportPreview from "../ReportPreview";
 import NoReportsIcon from "../NoReportsIcon";
+import LoadingWheel from "../LoadingWheel/LoadingWheel";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
         padding: theme.spacing(2),
         height: "100%"
     },
-    loadingContainer: {
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-    }
 }));
 
 export default function ReportColumn(props) {
@@ -23,9 +17,7 @@ export default function ReportColumn(props) {
     return (
         <Paper className={classes.paper}>
             {props.loaded === false ?
-                <div className={classes.loadingContainer}>
-                    <CircularProgress color="secondary"/>
-                </div>
+                <LoadingWheel/>
                 :
                 props.reports.length === 0 ?
                     <NoReportsIcon text={props.noItems} /> :
