@@ -1,20 +1,16 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { withRouter } from 'react-router-dom';
 import {
-    Fab,
     Grid,
     Typography,
-    Paper,
     makeStyles,
 } from "@material-ui/core";
-import AddIcon from '@material-ui/icons/Add';
-import NoReportsIcon from "../NoReportsIcon";
-import ReportPreview from "../ReportPreview";
 import PageLimit from "../Layouts/PageLimit";
+import ReportColumn from "./ReportColumn";
 import {withAuth} from "../Manager/withAuth";
 import {withManager} from "../Manager";
 import * as CONDITIONS from '../../constants/authConditions';
-import * as ROUTES from '../../constants/routes';
+import AddReportButton from "./AddReportButton";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -56,119 +52,71 @@ const useStyles = makeStyles((theme) => ({
 
 function UserHomeBase(props) {
     const classes = useStyles();
-    
-    const [pendingReports, setPR] = React.useState(null);
-    const [completedReports, setCR] = React.useState(null);
-    
+
+    let [data, setData] = useState({
+        values: [[],[],[]],
+        loaded: false
+    })
+
     useEffect(() => {
-        let isMounted = true;
-        
-        // Here we will fetch all appropriate data from the db
-        props.manager.request.getForms().then(data => {
-            let pr = [];    // Temp holder for reports
-            let cr = [];
-            
-            if (data !== null) {
-                // Loop through all data retrieved
-                // eslint-disable-next-line no-unused-vars
-                for (const [key, val] of Object.entries(data)) {
-                    
-                    // Add the id of the report as a value
-                    val["id"] = key;
-                    
-                    // status === 2 indicates that it is completed
-                    if (val.status === 2) {
-                        cr.push(val);
-                    } else {
-                        pr.push(val)
-                    }
+        // This effect subscribes to a listener on the Firebase Realtime Database
+        // The reference gets all of the reports with the correct UID
+        // The data is then interpreted from an object into the "data" state
+        // This is then partially passed to the "ReportColumns" to render
+
+        let reference = props.manager.db.ref("reports")
+
+        reference
+            .orderByChild("user/uid")
+            .equalTo(props.manager.auth.currentUser.uid)
+            .on('value', function(snapshot) {
+                let newData = [[],[],[]];
+
+                // This takes the data out of the snapshot
+                for (const [key, val] of Object.entries(snapshot.val())) {
+                    newData[val.status].push({
+                        id: key,
+                        ...val
+                    })
                 }
-            }
-            
-            // Pause if this
-            if (pendingReports === null || completedReports === null) {
-                if (isMounted) {
-                    setPR(pr);
-                    setCR(cr);
-                }
-            } else {
-                setTimeout(function() {
-                    if (isMounted) {
-                        setPR(pr);
-                        setCR(cr);
-                    }
-                }, 5000)
-            }
-        })
-        return () => { isMounted = false };
-    }, /*[completedReports, pendingReports, props.manager.request]*/) // Uncomment to make it like ComponentDidMount
-        
+
+                setData({
+                    values: newData,
+                    loaded: true,
+                });
+            });
+
+        return () => {
+            reference.off()
+        }
+    }, [])
+
     return (
         <PageLimit maxWidth="lg">
             <Grid container direction="column" spacing={3} className={classes.mainGrid}>
-                <Grid container direction="row" justify="space-between" alignItems="center"
-                      className={classes.headerGrid}>
+                <Grid container direction="row" justify="space-between" alignItems="center" className={classes.headerGrid}>
                     <Grid item>
-                        {/* TODO Replace with actual name */}
+                        { /* TODO Replace with actual name */ }
                         <Typography variant="h4">Welcome</Typography>
                     </Grid>
                     <Grid item>
-                        <Fab variant="extended" 
-                             color="secondary" 
-                             aria-label="add" 
-                             size="medium"
-                             onClick={() => props.history.push(ROUTES.NEW_REPORT)}
-                             className={classes.fab}>
-                            <AddIcon className={classes.btnIcon}/>
-                            <Typography variant="h6" className={classes.btnText}>Report Problem</Typography>
-                        </Fab>
+                        <AddReportButton/>
                     </Grid>
                 </Grid>
                 <Grid container direction="row" className={classes.reportsContainer}>
                     <Grid item md={6} xs={12} className={classes.paperGridItem}>
-                        <Paper className={classes.paperContainer}>
-                            {pendingReports === null ?
-                                <div>Loading</div> :
-                                pendingReports.length === 0 ?
-                                    <NoReportsIcon text="You have no Pending Reports"/> :
-                                    <Grid container spacing={1} direction="column">
-                                        {pendingReports.map((report, index) => {
-                                            return (
-                                                <Grid item key={index}>
-                                                    <ReportPreview 
-                                                        title={report.title} 
-                                                        desc={report.comments[0].comment} 
-                                                        status={report.status}
-                                                        id={report.id}
-                                                    />
-                                                </Grid>
-                                            )
-                                        })}
-                                    </Grid>
-                            }
-                        </Paper>
+                        <ReportColumn
+                            reports={data.values[0]}
+                            loaded={data.loaded}
+                            noItems="You have no Pending Reports"
+                        />
                     </Grid>
                     <Grid item md={6} xs={12} className={classes.paperGridItem}>
-                        <Paper className={classes.paperContainer}>
-                            {completedReports === null ?
-                                <div>Loading</div> :
-                                completedReports.length === 0  ?
-                                    <NoReportsIcon text="You have no Completed Reports"/> :
-                                    <Grid container spacing={1} direction="column">
-                                        {completedReports.map((report, index) => {
-                                            return (
-                                                <Grid item key={index}>
-                                                    <ReportPreview 
-                                                        title={report.title} 
-                                                        desc={report.comments[0].comment} 
-                                                        status={report.status} 
-                                                        id={report.id}/>
-                                                </Grid>
-                                            )
-                                        })}
-                                    </Grid>
-                            }
-                        </Paper>
+                        <ReportColumn
+                            reports={[...new Set([...data.values[1], ...data.values[2]])]}
+                            loaded={data.loaded}
+                            noItems="You have no Completed Reports"
+                        />
                     </Grid>
                 </Grid>
             </Grid>

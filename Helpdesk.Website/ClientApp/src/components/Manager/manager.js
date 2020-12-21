@@ -1,5 +1,6 @@
 import firebase from "firebase";
 import * as ROUTES from '../../constants/routes';
+import {func} from "prop-types";
 
 const userConfig = {
     apiKey: process.env.REACT_APP_API_KEY_USER,
@@ -19,23 +20,23 @@ class Manager {
         firebase.initializeApp(userConfig);
         this.auth = firebase.auth();
         this.db = firebase.database();
-        
+
         // Turn off Authentication Persistence
         this.auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
     }
-    
+
     // Create User
     createUser = (email, password) => this.auth.createUserWithEmailAndPassword(email, password);
-    
+
     // Sign In
     signIn = (email, password) => this.auth.signInWithEmailAndPassword(email, password);
-    
+
     // Sign Out
     signOut = () => this.auth.signOut();
 
     // Password Email Reset
     passwordReset = (email) => this.auth.sendPasswordResetEmail(email);
-    
+
     onAuthUserListener = (next, fallback) =>
         this.auth.onAuthStateChanged(authUser => {
             if (authUser) {
@@ -62,20 +63,30 @@ class Manager {
                 fallback();
             }
         });
-    
+
     user = uid => this.db.ref(`users/${uid}`);
     users = () => this.db.ref('users');
-    
+
     currentUser = () => { return {
         email: this.auth.currentUser.email,
         uid: this.auth.currentUser.uid
     }}
-    
+
+    refs = {
+        reports: () => {
+            let ref = this.db.ref("reports")
+            console.log(this.auth.currentUser.uid)
+            ref.orderByChild("user/uid").equalTo(this.auth.currentUser.uid)
+            return ref
+        }
+    }
+
+
     // TODO Update
     //// Requests ////
     request = {
         postForm: async function(_title, _description, _urg, _cat) {
-            
+
             let d = new Date();
             let currentDatetime = {
                 year: d.getFullYear(),
@@ -84,7 +95,7 @@ class Manager {
                 hour: d.getHours(),
                 minute: d.getMinutes(),
             }
-            
+
             let data = {
                 title: _title,
                 urg: _urg,
@@ -101,17 +112,17 @@ class Manager {
                 datetime: currentDatetime,
             }
             console.log(data)
-            
+
             let key = this.db.ref().child('reports').push().key;
-            
+
             await this.db.ref('reports/' + key).set(data);
-            
+
             return key
         }.bind(this),
-        
+
         getForms: async function() {
             let uid = this.auth.currentUser.uid;
-            
+
             let data;
             let ref = this.db.ref("reports");
             await ref
@@ -123,7 +134,7 @@ class Manager {
                 })
             return data;
         }.bind(this),
-        
+
         getForm: async function(id) {
 
             let data;
@@ -133,10 +144,32 @@ class Manager {
             })
             return data;
         }.bind(this),
-        
+
         updateForm: async function(id, data) {
             await this.db.ref("reports/" + id).set(data);
         }.bind(this),
+
+        addComment: async function(id, comment) {
+            let data = await this.request.getForm(id)
+
+            let d = new Date();
+            let currentDatetime = {
+                year: d.getFullYear(),
+                month: d.getMonth(),
+                day: d.getDay(),
+                hour: d.getHours(),
+                minute: d.getMinutes(),
+            }
+
+            let newComments = data.comments
+            newComments.push({
+                comment: comment,
+                datetime: currentDatetime,
+                user: this.currentUser(),
+            })
+
+            await this.db.ref("reports/" + id + "/comments").set(newComments);
+        }.bind(this)
     }
 }
 
