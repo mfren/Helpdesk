@@ -133,13 +133,14 @@ const CreateReportBase = props => {
             setLoading(true);
         }
         
-        props.manager.request.postForm(title, desc, urg, cat)()
-            .then(function () {
+        props.manager.request.postForm(title, desc, urg, cat)
+            .then(function (id) {
                 setSuccess(true);
                 setLoading(false);
-                props.history.push(ROUTES.HOME)
+                props.history.push(ROUTES.VIEW_REPORT + id)
             })
             .catch(function (error) {
+                console.error(error)
                 setLoading(false);
                 alert("Failed")
             })
