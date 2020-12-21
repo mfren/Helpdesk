@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+﻿import React, {useEffect} from "react";
 import { withRouter, useParams } from 'react-router-dom';
 import {
     makeStyles,
@@ -173,7 +173,8 @@ const ViewReportBase = props => {
     useEffect(() => {
         // This effect subscribes to a listener on the Firebase Realtime Database
         // The reference gets all of the data from the correct report in the db
-
+        let mounted = true
+        
         let reference = props.manager.db.ref("reports")
         reference
             .orderByKey()
@@ -188,10 +189,12 @@ const ViewReportBase = props => {
                     };
                 }
                 
-                setData({
-                    value: newData,
-                    loaded: true,
-                });
+                if (mounted) {
+                    setData({
+                        value: newData,
+                        loaded: true,
+                    });
+                }
             });
 
         return () => {

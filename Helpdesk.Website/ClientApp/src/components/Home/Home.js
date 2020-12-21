@@ -69,31 +69,31 @@ function UserHomeBase(props) {
         values: props.cache.reports() !== null ? processData(props.cache.reports()) : [[],[],[]],
         loaded: props.cache.reports() !== null,
     })
-        
+    
     useEffect(() => {
         // This effect subscribes to a listener on the Firebase Realtime Database
         // The reference gets all of the reports with the correct UID
         // The data is then interpreted from an object into the "data" state
         // This is then partially passed to the "ReportColumns" to render
-
+        let mounted = true;
+        
         let reference = props.manager.db.ref("reports")
-
         reference
             .orderByChild("user/uid")
             .equalTo(props.manager.auth.currentUser.uid)
             .on('value', function(snapshot) {
                 props.cache.cacheReports(snapshot)
                 
-                setTimeout(function () {
+                if (mounted) {
                     setData({
                         values: processData(snapshot),
                         loaded: true,
                     });
-                }, 5000)
-                
+                }
             });
 
         return () => {
+            mounted = false;
             reference.off()
         }
     }, [])
