@@ -106,14 +106,14 @@ function UserHomeBase(props) {
                 <Grid container direction="row" className={classes.reportsContainer}>
                     <Grid item md={6} xs={12} className={classes.paperGridItem}>
                         <ReportColumn
-                            reports={data.values[0]}
+                            reports={[...new Set([...data.values[0], ...data.values[1]])]}
                             loaded={data.loaded}
                             noItems="You have no Pending Reports"
                         />
                     </Grid>
                     <Grid item md={6} xs={12} className={classes.paperGridItem}>
                         <ReportColumn
-                            reports={[...new Set([...data.values[1], ...data.values[2]])]}
+                            reports={data.values[2]}
                             loaded={data.loaded}
                             noItems="You have no Completed Reports"
                         />
