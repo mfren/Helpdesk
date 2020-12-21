@@ -9,6 +9,7 @@ import PageLimit from "../Layouts/PageLimit";
 import ReportColumn from "./ReportColumn";
 import {withAuth} from "../Manager/withAuth";
 import {withManager} from "../Manager";
+import {withAppCache} from "../Cache";
 import * as CONDITIONS from '../../constants/authConditions';
 import AddReportButton from "./AddReportButton";
 
@@ -50,14 +51,25 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+function processData(snapshot) {
+    let newData = [[],[],[]]
+    for (const [key, val] of Object.entries(snapshot.val())) {
+        newData[val.status].push({
+            id: key,
+            ...val
+        })
+    }
+    return newData
+}
+
 function UserHomeBase(props) {
     const classes = useStyles();
-
+    
     let [data, setData] = useState({
-        values: [[],[],[]],
-        loaded: false
+        values: props.cache.reports() !== null ? processData(props.cache.reports()) : [[],[],[]],
+        loaded: props.cache.reports() !== null,
     })
-
+        
     useEffect(() => {
         // This effect subscribes to a listener on the Firebase Realtime Database
         // The reference gets all of the reports with the correct UID
@@ -70,20 +82,15 @@ function UserHomeBase(props) {
             .orderByChild("user/uid")
             .equalTo(props.manager.auth.currentUser.uid)
             .on('value', function(snapshot) {
-                let newData = [[],[],[]];
-
-                // This takes the data out of the snapshot
-                for (const [key, val] of Object.entries(snapshot.val())) {
-                    newData[val.status].push({
-                        id: key,
-                        ...val
-                    })
-                }
-
-                setData({
-                    values: newData,
-                    loaded: true,
-                });
+                props.cache.cacheReports(snapshot)
+                
+                setTimeout(function () {
+                    setData({
+                        values: processData(snapshot),
+                        loaded: true,
+                    });
+                }, 5000)
+                
             });
 
         return () => {
@@ -147,4 +154,4 @@ function HomeBase(props) {
     }
 }
 
-export const Home = withAuth(CONDITIONS.withAnyUser)(withManager(withRouter(HomeBase)));
+export const Home = withAuth(CONDITIONS.withAnyUser)(withAppCache(withManager(withRouter(HomeBase))));

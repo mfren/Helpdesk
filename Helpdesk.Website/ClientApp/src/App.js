@@ -10,6 +10,7 @@ import ViewReport from "./components/ViewReport";
 import NoMatch from "./components/NoMatch";
 import Manager, {ManagerContext} from "./components/Manager";
 import * as ROUTES from "./constants/routes";
+import CacheContext from "./components/Cache/context";
 
 const useStyles = makeStyles((theme) => ({
     mainContainer: {
@@ -41,36 +42,33 @@ export default function App() {
     const classes = useStyles();
     
     return (
-        <ManagerContext.Provider value={new Manager()}>
-            <div className={classes.mainContainer}>
-                <div className={classes.headerContainer}>
-                    <Navigation/>
-                </div>
-                <div className={classes.contentContainer}>
-                    <Switch className={classes.switch}>
-                        <Route exact path={ROUTES.HOME}>
-                            <Home/>
-                        </Route>
-                        <Route path={ROUTES.SIGN_IN}>
-                            <SignIn/>
-                        </Route>
-                        <Route path={ROUTES.SIGN_UP}>
-                            <SignUp/>
-                        </Route>
-                        <Route path={ROUTES.NEW_REPORT}>
-                            <CreateReport/>
-                        </Route>
-                        <Route path={ROUTES.VIEW_REPORT + ":id"} component={ViewReport}/>
-                        <Route path="*">
-                            <NoMatch/>
-                        </Route>
-                    </Switch>
-                </div>
-                <div className={classes.footerContainer}>
-                    
-                </div>
+        <div className={classes.mainContainer}>
+            <div className={classes.headerContainer}>
+                <Navigation/>
             </div>
-            
-        </ManagerContext.Provider>
+            <div className={classes.contentContainer}>
+                <Switch className={classes.switch}>
+                    <Route exact path={ROUTES.HOME}>
+                        <Home/>
+                    </Route>
+                    <Route path={ROUTES.SIGN_IN}>
+                        <SignIn/>
+                    </Route>
+                    <Route path={ROUTES.SIGN_UP}>
+                        <SignUp/>
+                    </Route>
+                    <Route path={ROUTES.NEW_REPORT}>
+                        <CreateReport/>
+                    </Route>
+                    <Route path={ROUTES.VIEW_REPORT + ":id"} component={ViewReport}/>
+                    <Route path="*">
+                        <NoMatch/>
+                    </Route>
+                </Switch>
+            </div>
+            <div className={classes.footerContainer}>
+                
+            </div>
+        </div>
     );
 }
