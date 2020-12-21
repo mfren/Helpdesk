@@ -75,7 +75,6 @@ class Manager {
     refs = {
         reports: () => {
             let ref = this.db.ref("reports")
-            console.log(this.auth.currentUser.uid)
             ref.orderByChild("user/uid").equalTo(this.auth.currentUser.uid)
             return ref
         }
@@ -111,7 +110,6 @@ class Manager {
                 },
                 datetime: currentDatetime,
             }
-            console.log(data)
 
             let key = this.db.ref().child('reports').push().key;
 
