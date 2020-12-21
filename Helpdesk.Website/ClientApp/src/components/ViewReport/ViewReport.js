@@ -1,4 +1,4 @@
-﻿import React, {useEffect} from "react";
+import React, {useEffect} from "react";
 import { withRouter, useParams } from 'react-router-dom';
 import {
     makeStyles,
@@ -18,6 +18,7 @@ import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import LoadingWheel from "../LoadingWheel/LoadingWheel";
+import {withAppCache} from "../Cache";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -139,19 +140,36 @@ function Comment(props) {
     )
 }
 
+function tryGetReportFromCache(snapshot, formId) {
+    let report = null;
+    
+    if (snapshot !== null) {
+        for (const [key, val] of Object.entries(snapshot.val())) {
+            if (key === formId.toString()) {
+                report = {
+                    id: key,
+                    ...val
+                }
+            }
+        }
+    }
+
+    return report
+}
+
 const ViewReportBase = props => {
     const classes = useStyles();
-    
-    const [data, setData] = React.useState({
-        value: null,
-        loaded: false,
-    });
-    const [open, setOpen] = React.useState(false);
 
     let { id } = useParams();
     const uid = props.manager.auth.currentUser.uid;
     const isAdmin = props.isAdmin;
-        
+    
+    const [data, setData] = React.useState({
+        value: tryGetReportFromCache(props.cache.reports(), id),
+        loaded: tryGetReportFromCache(props.cache.reports(), id) !== null,
+    });
+    const [open, setOpen] = React.useState(false);
+    
     useEffect(() => {
         // This effect subscribes to a listener on the Firebase Realtime Database
         // The reference gets all of the data from the correct report in the db
@@ -177,6 +195,7 @@ const ViewReportBase = props => {
             });
 
         return () => {
+            mounted = false;
             reference.off()
         }
     }, [])
@@ -215,9 +234,6 @@ const ViewReportBase = props => {
             setData(newData);
         }
     };
-    
-    
-    console.log(props.manager.auth.currentUser)
     
     if (data.value === []) {
         return (
@@ -287,4 +303,4 @@ const ViewReportBase = props => {
     }
 }
 
-export const ViewReport = withAuth(CONDITIONS.withAnyUser)(withManager(ViewReportBase))
+export const ViewReport = withAuth(CONDITIONS.withAnyUser)(withAppCache(withManager(ViewReportBase)));
