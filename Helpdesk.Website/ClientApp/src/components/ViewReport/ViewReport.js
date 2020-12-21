@@ -17,6 +17,7 @@ import ConfirmationDialogRaw from "./ConfirmationDialog";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
+import LoadingWheel from "../LoadingWheel/LoadingWheel";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -133,7 +134,7 @@ function Comment(props) {
                     <Typography>{description}</Typography>
                 </div>
             </Paper>
-            <Divider variant="vertical" className={classes.verticalDivider}/>
+            <Divider orientation="vertical" className={classes.verticalDivider}/>
         </div>
     )
 }
@@ -141,7 +142,10 @@ function Comment(props) {
 const ViewReportBase = props => {
     const classes = useStyles();
     
-    const [formData, setData] = React.useState(null);
+    const [data, setData] = React.useState({
+        value: null,
+        loaded: false,
+    });
     const [open, setOpen] = React.useState(false);
 
     let { id } = useParams();
@@ -149,29 +153,47 @@ const ViewReportBase = props => {
     const isAdmin = props.isAdmin;
         
     useEffect(() => {
-        console.log("View Report getting new data")
-        props.manager.request.getForm(id).then(data => {
-            if (data === null) {
-                setData([]);
-            }
-            else {
-                setData(data);
-            }
-        })
-    }, [])
+        // This effect subscribes to a listener on the Firebase Realtime Database
+        // The reference gets all of the data from the correct report in the db
 
-    if (formData === null) {
+        let reference = props.manager.db.ref("reports")
+        reference
+            .orderByKey()
+            .equalTo(id)
+            .on('value', function(snapshot) {
+                let newData;
+                
+                for (const [key, val] of Object.entries(snapshot.val())) {
+                    newData = {
+                        id: key,
+                        ...val
+                    };
+                }
+                
+                setData({
+                    value: newData,
+                    loaded: true,
+                });
+            });
+
+        return () => {
+            reference.off()
+        }
+    }, [])
+    
+    
+    if (!data.loaded) {
         return (
-            <div>Loading</div>
+            <LoadingWheel/>
         )
     }
     
     //// Set up chip ////
     let iconProps = { className: classes.icon }
 
-    let [chipLabel, colorClass, chipIcon] = formData.status === 2 ?
+    let [chipLabel, colorClass, chipIcon] = data.value.status === 2 ?
         ["Report Closed", classes.status2, <CheckCircleOutlineIcon {...iconProps}/>]:
-        formData.status === 1 ?
+        data.value.status === 1 ?
             ["Being Supported", classes.status1, <HelpOutlineIcon {...iconProps}/>]:
             ["Awaiting Support", classes.status0, <ErrorOutlineIcon {...iconProps}/>];
     
@@ -185,7 +207,7 @@ const ViewReportBase = props => {
         setOpen(false);
 
         if (newValue !== undefined) {
-            let newData = formData;
+            let newData = data.value;
             newData.status = newValue;
 
             props.manager.request.updateForm(id, newData).then();
@@ -197,12 +219,12 @@ const ViewReportBase = props => {
     
     console.log(props.manager.auth.currentUser)
     
-    if (formData === []) {
+    if (data.value === []) {
         return (
             <div>No results found</div>
         )
     }
-    else if (formData.user.uid !== uid && isAdmin === false) {
+    else if (data.value.user.uid !== uid && isAdmin === false) {
         return (
             <div>You dont have access to this report</div>
         )
@@ -211,8 +233,8 @@ const ViewReportBase = props => {
         return (
             <PageLimit maxWidth="md">
                 <Grid container direction="row" justify="space-between">
-                    <Typography variant="h3" component="h1">{formData.title}</Typography>
-                    { /* Change chip based on whether user is admin TODO Change to conditional*/
+                    <Typography variant="h3" component="h1">{data.value.title}</Typography>
+                    {  /* Change chip based on whether user is admin TODO Change to conditional */
                         1 === 1 ? (
                             <div>
                                 <Chip
@@ -226,7 +248,7 @@ const ViewReportBase = props => {
                                     keepMounted
                                     open={open}
                                     onClose={handleClose}
-                                    value={formData.status}
+                                    value={data.value.status}
                                 />
                             </div>
                         ) : (
@@ -239,17 +261,17 @@ const ViewReportBase = props => {
                     }
                 </Grid>
                 <UserTimeComments 
-                    username={formData.user.email} 
-                    datetime={formData.datetime}
-                    commentsLength={formData.comments}
+                    username={data.value.user.email} 
+                    datetime={data.value.datetime}
+                    commentsLength={data.value.comments}
                 />
                 
                 <Divider className={classes.topDivider}/>
                 
                 <Grid container direction="column">
-                    {formData.comments.map((value) => {
+                    {data.value.comments.map((value, index) => {
                         return (
-                            <Grid item>
+                            <Grid item key={index}>
                                 <Comment comment={value}/>
                             </Grid>
                         )
