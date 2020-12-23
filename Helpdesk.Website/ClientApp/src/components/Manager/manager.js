@@ -1,6 +1,5 @@
 import firebase from "firebase";
-import * as ROUTES from '../../constants/routes';
-import {func} from "prop-types";
+
 
 const userConfig = {
     apiKey: process.env.REACT_APP_API_KEY_USER,
