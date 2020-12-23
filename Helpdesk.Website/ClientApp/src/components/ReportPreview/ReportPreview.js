@@ -22,6 +22,9 @@ const useStyles = makeStyles((theme) => ({
         width: "100%",
         backgroundColor: COLORS.grey["50"],
         padding: theme.spacing(1),
+        '&:hover': {
+            boxShadow: theme.shadows[1]
+        },
     },
     grid: {
         width: "100%",
@@ -73,8 +76,6 @@ const ReportPreviewBase = props => {
     const classes = useStyles();    // Use predefined CSS classes
     
     const [shadow, setShadow] = React.useState(0);
-    const onMouseOver = () => setShadow(1);
-    const onMouseOut = () => setShadow(0);
     
     let title = props.title;
     const description = props.desc;
@@ -88,7 +89,7 @@ const ReportPreviewBase = props => {
     
     return (
         <ButtonBase className={classes.buttonBase} onClick={() => props.history.push(ROUTES.VIEW_REPORT + reportId)}>
-            <Paper onMouseOver={onMouseOver} onMouseOut={onMouseOut} className={classes.paperContainer} elevation={shadow}>
+            <Paper  className={classes.paperContainer} elevation={shadow}>
                 <Grid container direction="column" className={classes.grid}>
                     <Grid container direction="row-reverse" className={classes.titleStatusGrid}>
                         <Grid item className={classes.statusGridItem}>
