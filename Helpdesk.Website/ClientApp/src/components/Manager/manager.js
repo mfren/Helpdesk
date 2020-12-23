@@ -94,10 +94,13 @@ class Manager {
                 minute: d.getMinutes(),
             }
 
+            let key = this.db.ref().child('reports').push().key;
+
             let data = {
                 title: _title,
                 urg: _urg,
                 cat: _cat,
+                id: key,
                 status: 0,
                 user: this.currentUser(),
                 comments: {
@@ -109,9 +112,7 @@ class Manager {
                 },
                 datetime: currentDatetime,
             }
-
-            let key = this.db.ref().child('reports').push().key;
-
+            
             await this.db.ref('reports/' + key).set(data);
 
             return key
