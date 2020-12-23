@@ -53,11 +53,13 @@ const useStyles = makeStyles((theme) => ({
 
 function processData(snapshot) {
     let newData = [[],[],[]]
-    for (const [key, val] of Object.entries(snapshot.val())) {
-        newData[val.status].push({
-            id: key,
-            ...val
-        })
+    if (snapshot !== null) {
+        for (const [key, val] of Object.entries(snapshot.val())) {
+            newData[val.status].push({
+                id: key,
+                ...val
+            })
+        }
     }
     return newData
 }
