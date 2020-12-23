@@ -234,7 +234,10 @@ const ViewReportBase = props => {
 
             props.manager.request.updateForm(id, newData).then();
 
-            setData(newData);
+            setData({
+                value: newData,
+                loaded: true,
+            });
         }
     };
     
