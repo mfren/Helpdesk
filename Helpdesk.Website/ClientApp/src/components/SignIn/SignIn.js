@@ -11,11 +11,14 @@ import {
     Box,
     Typography,
     Container,
-    makeStyles
+    makeStyles, CircularProgress
 } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import {withManager} from "../Manager";
 import * as ROUTES from '../../constants/routes';
+import clsx from "clsx";
+import green from "@material-ui/core/colors/green";
+import {SwapCallsTwoTone} from "@material-ui/icons";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -36,6 +39,24 @@ const useStyles = makeStyles((theme) => ({
     submit: {
         margin: theme.spacing(3, 0, 2),
     },
+    buttonWrapper: {
+        margin: theme.spacing(3, 0, 2),
+        position: 'relative',
+    },
+    buttonSuccess: {
+        backgroundColor: green[500],
+        '&:hover': {
+            backgroundColor: green[700],
+        },
+    },
+    buttonProgress: {
+        color: green[500],
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        marginTop: -12,
+        marginLeft: -12,
+    },
 }));
 
 function SignInBase(props) {
@@ -43,13 +64,23 @@ function SignInBase(props) {
     const classes = useStyles();    // Use predefined CSS classes
         
     // Stores the Username entered into the text field
-    const [user, setUser] = React.useState(""); // eslint-disable-line
+    const [user, setUser] = React.useState("");
     
     // Stores the Password entered into the text field
-    const [pass, setPass] = React.useState(""); // eslint-disable-line
+    const [pass, setPass] = React.useState("");
     
     // Stores the message that tells the user what went wrong
-    const [msg, setMsg] = React.useState(""); // eslint-disable-line
+    const [errors, setErrors] = React.useState({
+        username: "",
+        password: "",
+    });
+    
+    // Handles the button loading wheel
+    const [loading, setLoading] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
+    const buttonClassname = clsx({
+        [classes.buttonSuccess]: success,
+    });
     
     // Changes the component state that holds the Username
     const handleUserChange = e => {
@@ -64,13 +95,49 @@ function SignInBase(props) {
     const handleSubmit = event => {
         event.preventDefault();     // Prevents the event from pushing us to another page with URL params (default behaviour)
         
+        setLoading(true)
+        
         // This signs in the user, and if successful, pushes the user to the home page
         // If not, it sets the error message in a local state, which is shown on the page
         // TODO Implement parameter routing
         props.manager.signIn(user, pass)
             .then(() => props.history.push(ROUTES.HOME))
-            .catch(error => setMsg(error.message))
-            .then(() => console.log(props.manager.users()))
+            .catch(error => {
+                let newErrors = {
+                    username: "",
+                    password: "",
+                }
+                
+                switch (error.code) {
+                    case "auth/wrong-password":
+                        newErrors.password = "Invalid password";
+                        break;
+                        
+                    case "auth/user-not-found":
+                        newErrors.username = "No user exists with that email";
+                        break;
+
+                    case "auth/network-request-failed":
+                        newErrors.username = newErrors.password = "You are not connected to the internet";
+                        break;
+
+                    case "auth/too-many-requests":
+                        newErrors.username = newErrors.password = "You have been blocked due to unusual activity";
+                        break;
+
+                    case "auth/user-disabled":
+                        newErrors.username = newErrors.password = "Your account has been disabled";
+                        break;
+                    
+                    default:
+                        newErrors.username = newErrors.password = "Unknown Error";
+                        console.log(error)
+                }
+                
+                setErrors(newErrors);
+                setLoading(false);
+                setSuccess(false);
+            })
     };
     
     return (
@@ -93,6 +160,8 @@ function SignInBase(props) {
                         name="email"
                         autoComplete="email"
                         autoFocus
+                        error={errors.username !== ""}
+                        helperText={errors.username}
                     />
                     <TextField
                         onChange={handlePassChange}
@@ -105,17 +174,15 @@ function SignInBase(props) {
                         type="password"
                         id="password"
                         autoComplete="current-password"
+                        error={errors.password !== ""}
+                        helperText={errors.password}
                     />
-                    <Typography variant="body2">{msg}</Typography>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                    >
-                        Sign In
-                    </Button>
+                    <div className={classes.buttonWrapper}>
+                        <Button variant="contained" color="primary" fullWidth disabled={loading} type="submit" className={buttonClassname}>
+                            Sign In
+                        </Button>
+                        {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
+                    </div>
                     <Grid container>
                         <Grid item xs>
                             <Link href="#" variant="body2">
