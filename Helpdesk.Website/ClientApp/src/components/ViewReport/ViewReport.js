@@ -140,33 +140,16 @@ function Comment(props) {
     )
 }
 
-function tryGetReportFromCache(snapshot, formId) {
-    let report = null;
-    
-    if (snapshot !== null) {
-        for (const [key, val] of Object.entries(snapshot.val())) {
-            if (key === formId.toString()) {
-                report = {
-                    id: key,
-                    ...val
-                }
-            }
-        }
-    }
-
-    return report
-}
-
 const ViewReportBase = props => {
     const classes = useStyles();
 
     let { id } = useParams();
     const uid = props.manager.auth.currentUser.uid;
-    const isAdmin = props.isAdmin;
+    const isAdmin = props.adminMode;
     
     const [data, setData] = React.useState({
-        value: tryGetReportFromCache(props.cache.reports(), id),
-        loaded: tryGetReportFromCache(props.cache.reports(), id) !== null,
+        value: null,
+        loaded: false,
     });
     const [open, setOpen] = React.useState(false);
     
@@ -180,14 +163,16 @@ const ViewReportBase = props => {
             .orderByKey()
             .equalTo(id)
             .on('value', function(snapshot) {
-                let newData;
+                let newData = null;
                 
-                for (const [key, val] of Object.entries(snapshot.val())) {
-                    newData = {
-                        id: key,
-                        ...val
-                    };
-                }
+                if (snapshot.val() !== null) {
+                    for (const [key, val] of Object.entries(snapshot.val())) {
+                        newData = {
+                            id: key,
+                            ...val
+                        };
+                    } 
+                }                    
                 
                 if (mounted) {
                     setData({
@@ -203,61 +188,59 @@ const ViewReportBase = props => {
         }
     }, [])
     
-    
     if (!data.loaded) {
         return (
             <LoadingWheel/>
         )
-    }
-    
-    //// Set up chip ////
-    let iconProps = { className: classes.icon }
-
-    let [chipLabel, colorClass, chipIcon] = data.value.status === 2 ?
-        ["Report Closed", classes.status2, <CheckCircleOutlineIcon {...iconProps}/>]:
-        data.value.status === 1 ?
-            ["Being Supported", classes.status1, <HelpOutlineIcon {...iconProps}/>]:
-            ["Awaiting Support", classes.status0, <ErrorOutlineIcon {...iconProps}/>];
-    
-    
-    //// Chip Callbacks ////
-    const handleChipClick = () => {
-        setOpen(true);
-    };
-
-    const handleClose = (newValue) => {
-        setOpen(false);
-
-        if (newValue !== undefined) {
-            let newData = data.value;
-            newData.status = newValue;
-
-            props.manager.request.updateForm(id, newData).then();
-
-            setData({
-                value: newData,
-                loaded: true,
-            });
-        }
-    };
-    
-    if (data.value === []) {
+    } 
+    if (data.value === null) {
         return (
             <div>No results found</div>
         )
     }
-    else if (data.value.user.uid !== uid && isAdmin === false) {
+    if (data.value.user.uid !== uid && isAdmin === false) {
         return (
             <div>You dont have access to this report</div>
         )
     }
-    else {
+    if (data.value.user.uid === uid || isAdmin === true) {
+        //// Set up chip ////
+        let iconProps = { className: classes.icon }
+
+        let [chipLabel, colorClass, chipIcon] = data.value.status === 2 ?
+            ["Report Closed", classes.status2, <CheckCircleOutlineIcon {...iconProps}/>]:
+            data.value.status === 1 ?
+                ["Being Supported", classes.status1, <HelpOutlineIcon {...iconProps}/>]:
+                ["Awaiting Support", classes.status0, <ErrorOutlineIcon {...iconProps}/>];
+
+
+        //// Chip Callbacks ////
+        const handleChipClick = () => {
+            setOpen(true);
+        };
+
+        const handleClose = (newValue) => {
+            setOpen(false);
+
+            if (newValue !== undefined) {
+                let newData = data.value;
+                newData.status = newValue;
+
+                props.manager.request.updateForm(id, newData).then();
+
+                setData({
+                    value: newData,
+                    loaded: true,
+                });
+            }
+        };
+        
         return (
             <PageLimit maxWidth="md">
                 <Grid container direction="row" justify="space-between">
                     <Typography variant="h3" component="h1">{data.value.title}</Typography>
                     {  /* Change chip based on whether user is admin TODO Change to conditional */
-                        1 === 1 ? (
+                        props.isAdmin === true ? (
                             <div>
                                 <Chip
                                     label={chipLabel}
@@ -282,14 +265,14 @@ const ViewReportBase = props => {
                         )
                     }
                 </Grid>
-                <UserTimeComments 
-                    username={data.value.user.email} 
+                <UserTimeComments
+                    username={data.value.user.email}
                     datetime={data.value.datetime}
                     commentsLength={data.value.comments}
                 />
-                
+
                 <Divider className={classes.topDivider}/>
-                
+
                 <Grid container direction="column">
                     {data.value.comments.map((value, index) => {
                         return (
@@ -300,13 +283,32 @@ const ViewReportBase = props => {
                     })}
                 </Grid>
                 <Divider className={classes.bottomDivider}/>
-
-
-
-
             </PageLimit>
+        )
+    }
+    else {
+        return (
+            <div>There has been an error</div>
         )
     }
 }
 
-export const ViewReport = withAuth(CONDITIONS.withAnyUser)(withAppCache(withManager(ViewReportBase)));
+const WrappedViewReportBase = withAppCache(ViewReportBase);
+
+function ViewReportSwitcher(props) {
+    if (props.isAdmin === true) {
+        return (
+            <WrappedViewReportBase manager={props.manager} adminMode={true}/>
+        )
+    } else if (props.isAdmin === false) {
+        return (
+            <WrappedViewReportBase manager={props.manager} adminMode={false}/>
+        )
+    } else {
+        return (
+            <div/>
+        )
+    }
+}
+
+export const ViewReport = withAuth(CONDITIONS.withAnyUser)(withManager(ViewReportSwitcher));
