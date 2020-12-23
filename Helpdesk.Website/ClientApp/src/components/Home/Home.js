@@ -53,7 +53,8 @@ const useStyles = makeStyles((theme) => ({
 
 function processData(snapshot) {
     let newData = [[],[],[]]
-    if (snapshot !== null) {
+    if (snapshot !== null) {            // Catch a non-existent cache
+        if (snapshot.val() !== null)    // Catch no data in database
         for (const [key, val] of Object.entries(snapshot.val())) {
             newData[val.status].push({
                 id: key,
@@ -105,7 +106,6 @@ function UserHomeBase(props) {
             <Grid container direction="column" spacing={3} className={classes.mainGrid}>
                 <Grid container direction="row" justify="space-between" alignItems="center" className={classes.headerGrid}>
                     <Grid item>
-                        { /* TODO Replace with actual name */ }
                         <Typography variant="h4">Welcome</Typography>
                     </Grid>
                     <Grid item>
