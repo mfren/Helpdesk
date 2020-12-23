@@ -99,7 +99,6 @@ function SignInBase(props) {
         
         // This signs in the user, and if successful, pushes the user to the home page
         // If not, it sets the error message in a local state, which is shown on the page
-        // TODO Implement parameter routing
         props.manager.signIn(user, pass)
             .then(() => props.history.push(ROUTES.HOME))
             .catch(error => {
