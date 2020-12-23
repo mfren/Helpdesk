@@ -1,8 +1,7 @@
-﻿import React, {useEffect} from "react";
+import React, {useEffect} from "react";
 import { withRouter, useParams } from 'react-router-dom';
 import {
     makeStyles,
-    Paper,
     Typography,
     Grid,
     colors as COLORS, Chip, Divider
@@ -11,7 +10,6 @@ import PageLimit from "../Layouts/PageLimit";
 import {withAuth} from "../Manager/withAuth";
 import {withManager} from "../Manager";
 import * as CONDITIONS from "../../constants/authConditions";
-import * as CONFIG_VALUES from "../../constants/reportValues";
 import * as ROUTES from '../../constants/routes';
 import ConfirmationDialogRaw from "./ConfirmationDialog";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
@@ -19,7 +17,8 @@ import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import LoadingWheel from "../LoadingWheel/LoadingWheel";
 import {withAppCache} from "../Cache";
-
+import Comment from "./Comment";
+import AddComment from "./AddComment";
 
 const useStyles = makeStyles((theme) => ({
     formContainer: {
@@ -81,33 +80,6 @@ const UserTimeCommentsStyles = makeStyles({
     }
 });
 
-const CommentStyles = makeStyles((theme) => ({
-    text: {
-        display: "inline-block"
-    },
-    commentContainer: {
-        marginLeft: theme.spacing(5),
-        marginRight: theme.spacing(5),
-    },
-    verticalDivider: {
-        height: "24px",
-        width: "2px",
-        marginLeft: "32px",
-    },
-    headerContainer: {
-        backgroundColor: COLORS.grey["100"],
-        borderTopLeftRadius: "4px",
-        borderTopRightRadius: "4px",
-        border: "1px solid #ccc!important",
-        padding: theme.spacing(1)
-    },
-    descContainer: {
-        padding: theme.spacing(1),
-        borderBottomLeftRadius: "4px",
-        borderBottomRightRadius: "4px",
-    }
-}));
-
 function UserTimeComments(props) {
     const classes = UserTimeCommentsStyles();
 
@@ -115,28 +87,6 @@ function UserTimeComments(props) {
         <Typography className={classes.text}>
             {props.username} reported this issue at {props.datetime.hour}:{props.datetime.minute}
         </Typography>
-    )
-}
-
-function Comment(props) {
-    const classes = CommentStyles();
-    let username = props.comment.user.email;
-    let time = `${props.comment.datetime.hour}:${props.comment.datetime.minute}`;
-    let date = `on ${props.comment.datetime.day}/${props.comment.datetime.month}/${props.comment.datetime.year}`
-    let description = props.comment.comment;
-    
-    return (
-        <div className={classes.commentContainer}>
-            <Paper>
-                <div className={classes.headerContainer}>
-                    <Typography>{username} commented at {time} {date}</Typography>
-                </div>
-                <div className={classes.descContainer}>
-                    <Typography>{description}</Typography>
-                </div>
-            </Paper>
-            <Divider orientation="vertical" className={classes.verticalDivider}/>
-        </div>
     )
 }
 
@@ -283,6 +233,7 @@ const ViewReportBase = props => {
                     })}
                 </Grid>
                 <Divider className={classes.bottomDivider}/>
+                <AddComment formId={id} func={props.manager.request.addComment}/>
             </PageLimit>
         )
     }
@@ -293,7 +244,7 @@ const ViewReportBase = props => {
     }
 }
 
-const WrappedViewReportBase = withAppCache(ViewReportBase);
+const WrappedViewReportBase = withAppCache(withRouter(ViewReportBase));
 
 function ViewReportSwitcher(props) {
     if (props.isAdmin === true) {
