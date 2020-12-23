@@ -167,7 +167,12 @@ class Manager {
             })
 
             await this.db.ref("reports/" + id + "/comments").set(newComments);
-        }.bind(this)
+        }.bind(this),
+        
+        deleteForm: function(id) {
+            let ref = this.db.ref("reports/" + id)
+            ref.remove()
+        }.bind(this),
     }
 }
 

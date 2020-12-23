@@ -16,8 +16,14 @@ export default function ConfirmationDialogRaw(props) {
     const radioGroupRef = React.useRef(null);
 
     React.useEffect(() => {
+        let mounted = true;
+        
         if (!open) {
-            setValue(valueProp);
+            if (mounted === true) { setValue(valueProp); }
+        }
+        
+        return () => {
+            mounted = false;
         }
     }, [valueProp, open]);
 
@@ -59,7 +65,7 @@ export default function ConfirmationDialogRaw(props) {
                     value={value}
                     onChange={handleChange}
                 >
-                    {["Awaiting Support", "Being Supported", "Report Closed"].map((option, index) => (
+                    {["Awaiting Support", "Being Supported", "Report Closed", "Delete Report"].map((option, index) => (
                         <FormControlLabel value={index} key={index} control={<Radio />} label={option} />
                     ))}
                 </RadioGroup>

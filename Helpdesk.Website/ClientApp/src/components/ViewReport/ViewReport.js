@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+﻿import React, {useEffect} from "react";
 import { withRouter, useParams } from 'react-router-dom';
 import {
     makeStyles,
@@ -173,18 +173,23 @@ const ViewReportBase = props => {
             setOpen(false);
 
             if (newValue !== undefined) {
-                let newData = data.value;
-                newData.status = newValue;
+                if (newValue === 3) {
+                    props.manager.request.deleteForm(id)
+                    props.history.push(ROUTES.HOME)
+                } else {
+                    let newData = data.value;
+                    newData.status = newValue;
 
-                props.manager.request.updateForm(id, newData).then();
+                    props.manager.request.updateForm(id, newData).then();
 
-                setData({
-                    value: newData,
-                    loaded: true,
-                });
+                    setData({
+                        value: newData,
+                        loaded: true,
+                    });
+                }
             }
         };
-        
+                
         return (
             <PageLimit maxWidth="md">
                 <Grid container direction="row" justify="space-between">
