@@ -240,7 +240,7 @@ const ViewReportBase = props => {
                 <Grid container direction="row" justify="space-between">
                     <Typography variant="h3" component="h1">{data.value.title}</Typography>
                     {  /* Change chip based on whether user is admin TODO Change to conditional */
-                        props.isAdmin === true ? (
+                        isAdmin === true ? (
                             <div>
                                 <Chip
                                     label={chipLabel}
